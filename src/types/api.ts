@@ -1,0 +1,157 @@
+/**
+ * API Data Transfer Objects (DTOs) - Mirror backend DTOs
+ * These types should match exactly with the backend API responses
+ */
+
+export interface UserDTO {
+  id: string;
+  name: string;
+  email: string;
+  contact: string | null;
+  role: 'BASIC' | 'MID' | 'PREMIUM';
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface AuthResponseDTO {
+  user: UserDTO;
+  token: string;
+}
+
+export interface GroupDTO {
+  id: string;
+  name: string;
+  description: string | null;
+  currency: string;
+  ownerId: string;
+  createdAt: string;
+  updatedAt: string;
+  memberCount?: number;
+  expenseCount?: number;
+}
+
+export interface GroupMemberDTO {
+  id: string;
+  userId: string;
+  groupId: string;
+  role: 'MEMBER' | 'ADMIN';
+  joinedAt: string;
+  user: UserDTO;
+}
+
+export interface ExpenseDTO {
+  id: string;
+  description: string;
+  amount: number; // in cents
+  currency: string;
+  paidBy: string;
+  groupId: string;
+  expenseDate: string;
+  splitType: 'EQUAL' | 'EXACT' | 'PERCENTAGE';
+  createdAt: string;
+  updatedAt: string;
+  paidByUser: UserDTO;
+  splits: ExpenseSplitDTO[];
+}
+
+export interface ExpenseDetailDTO extends ExpenseDTO {
+  group: GroupDTO;
+}
+
+export interface ExpenseSplitDTO {
+  id: string;
+  expenseId: string;
+  userId: string;
+  amount: number; // in cents
+  splitType: 'EQUAL' | 'EXACT' | 'PERCENTAGE';
+  splitValue: number;
+  user: UserDTO;
+}
+
+export interface BalanceDTO {
+  userId: string;
+  netBalance: number; // in cents - positive means owed money
+  user: UserDTO;
+}
+
+export interface SimplifiedTransferDTO {
+  fromUserId: string;
+  toUserId: string;
+  amount: number; // in cents
+  fromUser: UserDTO;
+  toUser: UserDTO;
+}
+
+export interface SettlementDTO {
+  id: string;
+  groupId: string;
+  fromUserId: string;
+  toUserId: string;
+  amount: number; // in cents
+  currency: string;
+  note: string | null;
+  settledAt: string;
+  createdAt: string;
+  fromUser: UserDTO;
+  toUser: UserDTO;
+}
+
+export interface ActivityDTO {
+  id: string;
+  type: 'EXPENSE_CREATED' | 'EXPENSE_UPDATED' | 'EXPENSE_DELETED' | 'SETTLEMENT_CREATED' | 'MEMBER_JOINED' | 'MEMBER_LEFT';
+  groupId: string;
+  userId: string;
+  metadata: Record<string, any>;
+  createdAt: string;
+  user: UserDTO;
+}
+
+// Request payload types
+export interface CreateGroupPayload {
+  name: string;
+  description?: string;
+  currency?: string;
+}
+
+export interface UpdateGroupPayload {
+  name?: string;
+  description?: string;
+  currency?: string;
+}
+
+export interface CreateExpensePayload {
+  description: string;
+  amount: string; // decimal string like "45.00"
+  paidBy?: string;
+  currency?: string;
+  expenseDate?: string;
+  splitType?: 'EQUAL';
+  participantIds?: string[];
+}
+
+export interface UpdateExpensePayload extends CreateExpensePayload {}
+
+export interface CreateSettlementPayload {
+  fromUserId: string;
+  toUserId: string;
+  amount: string; // decimal string
+  note?: string;
+}
+
+export interface LoginPayload {
+  email: string;
+  password: string;
+}
+
+export interface RegisterPayload {
+  name: string;
+  email: string;
+  password: string;
+  contact?: string;
+}
+
+export interface UpdateUserPayload {
+  name?: string;
+  email?: string;
+  contact?: string;
+}
