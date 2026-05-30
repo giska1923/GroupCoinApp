@@ -11,11 +11,15 @@ export default function WelcomeScreen() {
   const theme = useTheme();
 
   return (
-    <Screen variant='fixed' padding='lg'>
+    <Screen
+      variant='fixed'
+      padding='lg'
+      edges={['top', 'bottom', 'left', 'right']}
+    >
       <Column justify='center' align='center' gap='xl' style={{ flex: 1 }}>
         {/* Logo and Title */}
         <Column align='center' gap='lg'>
-          <Coins size={64} />
+          <Coins size={64} color={theme.colors.brand[400]} />
           <Typography variant='display' color='primary' weight='bold'>
             GroupCoin
           </Typography>
@@ -33,7 +37,8 @@ export default function WelcomeScreen() {
           <Button
             variant='primary'
             size='lg'
-            icon={<LogIn size={20} />}
+            fullWidth
+            icon={<LogIn size={20} color={theme.colors.text.primary} />}
             iconPosition='left'
             onPress={() => router.push('/(auth)/login')}
           >
@@ -43,7 +48,8 @@ export default function WelcomeScreen() {
           <Button
             variant='outline'
             size='lg'
-            icon={<UserPlus size={20} />}
+            fullWidth
+            icon={<UserPlus size={20} color={theme.colors.brand[500]} />}
             iconPosition='left'
             onPress={() => router.push('/(auth)/register')}
           >

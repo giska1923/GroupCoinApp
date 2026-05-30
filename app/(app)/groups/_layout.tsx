@@ -1,7 +1,7 @@
 import { Stack } from 'expo-router';
-import { colors } from '../../../../src/theme/tokens';
+import { colors } from '../../../src/theme/tokens';
 
-export default function GroupDetailLayout() {
+export default function GroupsStackLayout() {
   return (
     <Stack
       screenOptions={{
@@ -11,9 +11,10 @@ export default function GroupDetailLayout() {
     >
       <Stack.Screen name='index' />
       <Stack.Screen
-        name='add-expense'
+        name='new'
         options={{ presentation: 'modal', animation: 'slide_from_bottom' }}
       />
+      <Stack.Screen name='[id]' />
     </Stack>
   );
 }

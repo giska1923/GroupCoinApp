@@ -184,14 +184,33 @@ export const components = {
     padding: spacing.lg,
   },
   input: {
-    height: 48,
-    radius: radius.md,
-    padding: spacing.md,
+    height: 52,
+    radius: radius.lg,
+    padding: spacing.lg,
   },
   avatar: {
     sm: 32,
     md: 40,
     lg: 48,
     xl: 64,
+    '2xl': 96,
+  },
+  tabBar: {
+    height: 64,
+    radius: radius['3xl'],
+    fab: 56,
+  },
+  sheet: {
+    radius: radius['2xl'],
+    handleWidth: 40,
+    handleHeight: 4,
+  },
+  chip: {
+    height: 36,
+    radius: radius.full,
+  },
+  listItem: {
+    minHeight: 56,
+    radius: radius.lg,
   },
 } as const;

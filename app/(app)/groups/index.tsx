@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, ScrollView, TouchableOpacity } from 'react-native';
-import { Plus, Bell } from 'lucide-react-native';
+import { router } from 'expo-router';
+import { Bell } from 'lucide-react-native';
 import { useTheme } from '../../../src/theme/ThemeProvider';
 import { Screen } from '../../../src/components/layout/Screen';
 import { Section } from '../../../src/components/layout/Section';
@@ -8,7 +9,6 @@ import { Row, Column } from '../../../src/components/layout/Row';
 import {
   Typography,
   Card,
-  Button,
   Amount,
   GroupAvatar,
   Avatar,
@@ -102,7 +102,7 @@ export default function GroupsScreen() {
       <Section
         title='Popular Groups'
         showSeeAll={true}
-        onSeeAllPress={() => console.log('See all groups')}
+        onSeeAllPress={() => {}}
         style={{ paddingHorizontal: theme.spacing.lg }}
       >
         <ScrollView
@@ -120,7 +120,7 @@ export default function GroupsScreen() {
               memberCount={group.memberCount}
               status={group.status}
               size='lg'
-              onPress={() => console.log(`Navigate to ${group.name}`)}
+              onPress={() => router.push(`/(app)/groups/${group.id}`)}
             />
           ))}
         </ScrollView>
@@ -130,7 +130,7 @@ export default function GroupsScreen() {
       <Section
         title='Recent Activity'
         showSeeAll={true}
-        onSeeAllPress={() => console.log('See all activity')}
+        onSeeAllPress={() => router.push('/(app)/activity')}
         style={{
           paddingHorizontal: theme.spacing.lg,
           paddingBottom: theme.spacing['6xl'], // Extra padding for FAB
@@ -167,22 +167,6 @@ export default function GroupsScreen() {
           ))}
         </Column>
       </Section>
-
-      {/* Floating Action Button */}
-      <View
-        style={{
-          position: 'absolute',
-          bottom: theme.spacing['3xl'],
-          right: theme.spacing.lg,
-        }}
-      >
-        <Button
-          variant='primary'
-          size='fab'
-          icon={<Plus size={24} color={theme.colors.text.primary} />}
-          onPress={() => console.log('Add expense')}
-        />
-      </View>
     </Screen>
   );
 }

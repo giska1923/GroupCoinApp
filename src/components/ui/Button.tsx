@@ -23,6 +23,11 @@ interface ButtonProps extends Omit<TouchableOpacityProps, 'style'> {
   loading?: boolean;
   icon?: React.ReactNode;
   iconPosition?: 'left' | 'right';
+  /** Pill-shaped fully rounded button (e.g. "Settle up"). */
+  rounded?: boolean;
+  fullWidth?: boolean;
+  /** Overrides the variant's default label/icon color. */
+  textColor?: string;
   style?: ViewStyle;
   children?: React.ReactNode;
 }
@@ -33,6 +38,9 @@ export const Button: React.FC<ButtonProps> = ({
   loading = false,
   icon,
   iconPosition = 'left',
+  rounded = false,
+  fullWidth = false,
+  textColor,
   style,
   disabled,
   children,
@@ -114,6 +122,7 @@ export const Button: React.FC<ButtonProps> = ({
 
   const getTextColor = () => {
     if (disabled || loading) return theme.colors.text.muted;
+    if (textColor) return textColor;
 
     switch (variant) {
       case 'primary':
@@ -131,6 +140,8 @@ export const Button: React.FC<ButtonProps> = ({
   const finalStyle: ViewStyle = {
     ...getVariantStyle(),
     ...getSizeStyle(),
+    ...(rounded && size !== 'fab' ? { borderRadius: theme.radius.full } : {}),
+    ...(fullWidth ? { alignSelf: 'stretch' } : {}),
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
