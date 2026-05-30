@@ -6,12 +6,29 @@ import { Screen } from '../../src/components/layout/Screen';
 import { Header } from '../../src/components/layout/Header';
 import { Column } from '../../src/components/layout/Row';
 import { Typography, TextField, Button } from '../../src/components/ui';
+import { useLogin } from '../../src/hooks';
+import { ClientError } from '../../src/api/errors';
 
 export default function LoginScreen() {
   const theme = useTheme();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const login = useLogin();
+
+  const errorMessage =
+    login.error instanceof ClientError
+      ? login.error.message
+      : login.error
+        ? 'Could not sign in. Please try again.'
+        : undefined;
+
+  const handleSubmit = () => {
+    login.mutate(
+      { email: email.trim(), password },
+      { onSuccess: () => router.replace('/(app)/groups') },
+    );
+  };
 
   return (
     <Screen variant='fixed' padding='lg' edges={['top', 'bottom', 'left', 'right']}>
@@ -55,11 +72,19 @@ export default function LoginScreen() {
           />
         </Column>
 
+        {errorMessage && (
+          <Typography variant='caption' color='negative'>
+            {errorMessage}
+          </Typography>
+        )}
+
         <Button
           variant='primary'
           size='lg'
           fullWidth
-          onPress={() => router.replace('/(app)/groups')}
+          loading={login.isPending}
+          disabled={!email.trim() || !password}
+          onPress={handleSubmit}
         >
           Sign In
         </Button>

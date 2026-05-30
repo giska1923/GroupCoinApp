@@ -5,6 +5,8 @@ import { Screen } from '../../../src/components/layout/Screen';
 import { Header } from '../../../src/components/layout/Header';
 import { Row, Column } from '../../../src/components/layout/Row';
 import { Typography, TextField, Button, Chip } from '../../../src/components/ui';
+import { useCreateGroup } from '../../../src/hooks';
+import { ClientError } from '../../../src/api/errors';
 
 const CURRENCIES = ['USD', 'EUR', 'GBP', 'JPY'];
 
@@ -13,12 +15,31 @@ export default function NewGroupScreen() {
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [currency, setCurrency] = useState('USD');
+  const createGroup = useCreateGroup();
 
-  const canSave = name.trim().length > 0;
+  const canSave = name.trim().length > 0 && !createGroup.isPending;
 
   const close = () => {
     if (router.canGoBack()) router.back();
   };
+
+  const handleSave = () => {
+    createGroup.mutate(
+      {
+        name: name.trim(),
+        description: description.trim() || undefined,
+        currency,
+      },
+      { onSuccess: close },
+    );
+  };
+
+  const errorMessage =
+    createGroup.error instanceof ClientError
+      ? createGroup.error.message
+      : createGroup.error
+        ? 'Could not create the group. Please try again.'
+        : undefined;
 
   return (
     <Screen variant='scroll' padding='lg' edges={['top', 'left', 'right']}>
@@ -34,7 +55,7 @@ export default function NewGroupScreen() {
             textColor={
               canSave ? theme.colors.brand[400] : theme.colors.text.muted
             }
-            onPress={close}
+            onPress={handleSave}
           >
             Save
           </Button>
@@ -74,12 +95,19 @@ export default function NewGroupScreen() {
           </Row>
         </Column>
 
+        {errorMessage && (
+          <Typography variant='caption' color='negative'>
+            {errorMessage}
+          </Typography>
+        )}
+
         <Button
           variant='primary'
           size='lg'
           fullWidth
+          loading={createGroup.isPending}
           disabled={!canSave}
-          onPress={close}
+          onPress={handleSave}
         >
           Create Group
         </Button>

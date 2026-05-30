@@ -1,172 +1,140 @@
 import React from 'react';
-import { View, ScrollView, TouchableOpacity } from 'react-native';
+import { View, ScrollView } from 'react-native';
 import { router } from 'expo-router';
-import { Bell } from 'lucide-react-native';
+import { Bell, Users } from 'lucide-react-native';
 import { useTheme } from '../../../src/theme/ThemeProvider';
 import { Screen } from '../../../src/components/layout/Screen';
+import { Header } from '../../../src/components/layout/Header';
 import { Section } from '../../../src/components/layout/Section';
-import { Row, Column } from '../../../src/components/layout/Row';
 import {
   Typography,
   Card,
   Amount,
   GroupAvatar,
-  Avatar,
+  ListItem,
 } from '../../../src/components/ui';
+import {
+  Spinner,
+  EmptyState,
+  ErrorState,
+} from '../../../src/components/feedback';
+import { useOverview } from '../../../src/hooks';
 
 export default function GroupsScreen() {
   const theme = useTheme();
-
-  // Mock data based on screenshot
-  const netFlow = 124050; // $1,240.50 in cents
-  const youAreOwed = 142000; // $1,420 in cents
-
-  const popularGroups = [
-    { id: '1', name: 'Roommates', memberCount: 4, status: 'active' as const },
-    { id: '2', name: 'Tokyo Trip', memberCount: 6, status: 'active' as const },
-    { id: '3', name: 'Work Lunch', memberCount: 8, status: 'pending' as const },
-  ];
-
-  const recentActivity = [
-    {
-      id: '1',
-      description: 'Dinner at Nobu',
-      amount: 5100, // $51.00
-      user: 'Alex',
-      avatar: 'A',
-      type: 'positive' as const,
-    },
-    {
-      id: '2',
-      description: 'Dinner at Nobu',
-      amount: -1830, // -$18.30
-      user: 'You',
-      avatar: '🍜',
-      type: 'negative' as const,
-    },
-  ];
+  const { groups, groupsQuery, netFlowCents, owedToYou, isLoadingBalances } =
+    useOverview();
 
   return (
-    <Screen variant='scroll' padding='none'>
-      {/* Header with title and notification */}
-      <View
-        style={{
-          paddingHorizontal: theme.spacing.lg,
-          paddingTop: theme.spacing.md,
-          paddingBottom: theme.spacing.xl,
-        }}
-      >
-        <Row
-          justify='space-between'
-          align='center'
-          style={{ marginBottom: theme.spacing.xl }}
-        >
-          <Typography variant='title' color='primary' weight='semibold'>
-            Equinox Flow
-          </Typography>
+    <Screen
+      variant='scroll'
+      padding='none'
+      refreshing={groupsQuery.isRefetching}
+      onRefresh={() => groupsQuery.refetch()}
+    >
+      <View style={{ paddingHorizontal: theme.spacing.lg }}>
+        <Header
+          title='GroupCoin'
+          leading='none'
+          align='left'
+          right={<Bell size={22} color={theme.colors.text.secondary} />}
+        />
+      </View>
 
-          <TouchableOpacity>
-            <Bell size={24} color={theme.colors.text.secondary} />
-          </TouchableOpacity>
-        </Row>
-
-        {/* Net Flow Card */}
+      {/* Net Flow */}
+      <View style={{ paddingHorizontal: theme.spacing.lg, paddingBottom: theme.spacing.xl }}>
         <Card variant='elevated' padding='lg' style={{ alignItems: 'center' }}>
-          <Typography
-            variant='caption'
-            color='secondary'
-            style={{ marginBottom: theme.spacing.sm }}
-          >
+          <Typography variant='caption' color='secondary' style={{ marginBottom: theme.spacing.sm }}>
             Net Flow
           </Typography>
-
-          <Amount
-            value={netFlow}
-            variant='display'
-            type='positive'
-            showSign={true}
-          />
-
-          <Typography
-            variant='caption'
-            color='secondary'
-            style={{ marginTop: theme.spacing.sm }}
-          >
-            You are owed:{' '}
-            <Amount value={youAreOwed} variant='small' showSign={false} />
+          {isLoadingBalances ? (
+            <Spinner size='small' />
+          ) : (
+            <Amount value={netFlowCents} variant='display' showSign />
+          )}
+          <Typography variant='caption' color='secondary' style={{ marginTop: theme.spacing.sm }}>
+            You are owed{' '}
+            <Amount value={owedToYou} variant='small' showSign={false} />
           </Typography>
         </Card>
       </View>
 
-      {/* Popular Groups */}
-      <Section
-        title='Popular Groups'
-        showSeeAll={true}
-        onSeeAllPress={() => {}}
-        style={{ paddingHorizontal: theme.spacing.lg }}
-      >
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={{
-            paddingHorizontal: theme.spacing.sm,
-            gap: theme.spacing.lg,
-          }}
-        >
-          {popularGroups.map(group => (
-            <GroupAvatar
-              key={group.id}
-              name={group.name}
-              memberCount={group.memberCount}
-              status={group.status}
-              size='lg'
-              onPress={() => router.push(`/(app)/groups/${group.id}`)}
-            />
-          ))}
-        </ScrollView>
-      </Section>
-
-      {/* Recent Activity */}
-      <Section
-        title='Recent Activity'
-        showSeeAll={true}
-        onSeeAllPress={() => router.push('/(app)/activity')}
-        style={{
-          paddingHorizontal: theme.spacing.lg,
-          paddingBottom: theme.spacing['6xl'], // Extra padding for FAB
-        }}
-      >
-        <Column gap='sm'>
-          {recentActivity.map(activity => (
-            <Card key={activity.id} variant='default' padding='md'>
-              <Row justify='space-between' align='center'>
-                <Row gap='md' style={{ flex: 1 }}>
-                  <Avatar
-                    size='sm'
-                    initials={activity.avatar}
-                    backgroundColor={theme.colors.brand[600]}
-                  />
-
-                  <Column gap='xs' style={{ flex: 1 }}>
-                    <Typography variant='body' color='primary' weight='medium'>
-                      {activity.description}
-                    </Typography>
-                    <Typography variant='caption' color='secondary'>
-                      Added by {activity.user}
-                    </Typography>
-                  </Column>
-                </Row>
-
-                <Amount
-                  value={activity.amount}
-                  variant='default'
-                  type={activity.type}
+      {groupsQuery.isLoading ? (
+        <Spinner fill />
+      ) : groupsQuery.isError && groups.length === 0 ? (
+        <ErrorState error={groupsQuery.error} onRetry={() => groupsQuery.refetch()} />
+      ) : groups.length === 0 ? (
+        <EmptyState
+          title='No groups yet'
+          message='Create a group to start splitting expenses with friends.'
+          icon={<Users size={48} color={theme.colors.text.muted} />}
+          action={{ label: 'Create group', onPress: () => router.push('/(app)/groups/new') }}
+        />
+      ) : (
+        <>
+          <Section
+            title='Popular Groups'
+            style={{ paddingHorizontal: theme.spacing.lg }}
+          >
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={{
+                paddingHorizontal: theme.spacing.sm,
+                gap: theme.spacing.lg,
+              }}
+            >
+              {groups.map(group => (
+                <GroupAvatar
+                  key={group.id}
+                  name={group.name}
+                  memberCount={group.memberCount}
+                  status='active'
+                  size='lg'
+                  onPress={() => router.push(`/(app)/groups/${group.id}`)}
                 />
-              </Row>
+              ))}
+            </ScrollView>
+          </Section>
+
+          <Section
+            title='Your groups'
+            style={{
+              paddingHorizontal: theme.spacing.lg,
+              paddingTop: theme.spacing.xl,
+              paddingBottom: theme.spacing['6xl'],
+            }}
+          >
+            <Card variant='default' padding='none'>
+              {groups.map((group, index) => (
+                <ListItem
+                  key={group.id}
+                  title={group.name}
+                  subtitle={
+                    [
+                      group.memberCount != null
+                        ? `${group.memberCount} members`
+                        : null,
+                      group.expenseCount != null
+                        ? `${group.expenseCount} expenses`
+                        : null,
+                    ]
+                      .filter(Boolean)
+                      .join(' · ') || group.currency
+                  }
+                  leading={
+                    <Typography variant='body' weight='semibold' color='accent'>
+                      {group.name.slice(0, 1).toUpperCase()}
+                    </Typography>
+                  }
+                  divider={index < groups.length - 1}
+                  onPress={() => router.push(`/(app)/groups/${group.id}`)}
+                />
+              ))}
             </Card>
-          ))}
-        </Column>
-      </Section>
+          </Section>
+        </>
+      )}
     </Screen>
   );
 }

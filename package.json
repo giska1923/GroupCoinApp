@@ -3,6 +3,8 @@
   "version": "1.0.0",
   "main": "index.ts",
   "dependencies": {
+    "@tanstack/react-query": "^5.100.14",
+    "axios": "^1.16.1",
     "expo": "~56.0.6",
     "expo-constants": "~56.0.16",
     "expo-linking": "~56.0.13",

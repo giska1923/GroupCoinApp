@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { View } from 'react-native';
+import { router } from 'expo-router';
 import {
   CreditCard,
   Bell,
@@ -20,10 +21,30 @@ import {
   ListItem,
   Switch,
 } from '../../../src/components/ui';
+import { useCurrentUser, useLogout } from '../../../src/hooks';
+import { useAuthStore } from '../../../src/stores/auth.store';
+
+const initialsOf = (name?: string) =>
+  (name ?? '')
+    .split(' ')
+    .map(part => part.charAt(0))
+    .join('')
+    .slice(0, 2)
+    .toUpperCase() || '?';
 
 export default function AccountScreen() {
   const theme = useTheme();
   const [notifications, setNotifications] = useState(true);
+
+  const storedUser = useAuthStore(s => s.user);
+  const { data: fetchedUser } = useCurrentUser();
+  const user = fetchedUser ?? storedUser;
+  const logout = useLogout();
+
+  const handleSignOut = async () => {
+    await logout();
+    router.replace('/(auth)/welcome');
+  };
 
   return (
     <Screen variant='scroll' padding='none'>
@@ -35,17 +56,17 @@ export default function AccountScreen() {
       <Column align='center' gap='md' style={{ paddingVertical: theme.spacing.xl }}>
         <Avatar
           size='xl'
-          initials='MC'
+          initials={initialsOf(user?.name)}
           backgroundColor={theme.colors.brand[600]}
           showStatusRing
           statusRingColor='accent'
         />
         <Column align='center' gap='xs'>
           <Typography variant='heading' weight='semibold'>
-            Michael Chen
+            {user?.name ?? 'Your account'}
           </Typography>
           <Typography variant='caption' color='secondary'>
-            michael.chen@example.com
+            {user?.email ?? ''}
           </Typography>
         </Column>
       </Column>
@@ -102,7 +123,7 @@ export default function AccountScreen() {
           textColor={theme.colors.financialNegative}
           icon={<LogOut size={20} color={theme.colors.financialNegative} />}
           style={{ borderColor: theme.colors.financialNegative }}
-          onPress={() => {}}
+          onPress={handleSignOut}
         >
           Sign Out
         </Button>

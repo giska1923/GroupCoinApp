@@ -2,12 +2,32 @@ import React from 'react';
 import { View, TouchableOpacity } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
-import type { BottomTabBarProps } from '@react-navigation/bottom-tabs';
-import { Home, Receipt, Activity, User, Plus, LucideIcon } from 'lucide-react-native';
+import { Home, Receipt, Activity, User, Plus } from 'lucide-react-native';
 import { useTheme } from '../../theme/ThemeProvider';
 import { Typography } from '../ui/Typography';
 
-const ICONS: Record<string, LucideIcon> = {
+type TabIcon = React.ComponentType<{ size?: number; color?: string }>;
+
+/**
+ * Minimal shape of the props the Tabs navigator hands to `tabBar`.
+ * (Avoids a hard dependency on @react-navigation types.)
+ */
+export interface TabBarProps {
+  state: {
+    index: number;
+    routes: { key: string; name: string }[];
+  };
+  navigation: {
+    navigate: (name: string) => void;
+    emit: (event: {
+      type: 'tabPress';
+      target: string;
+      canPreventDefault: boolean;
+    }) => { defaultPrevented: boolean };
+  };
+}
+
+const ICONS: Record<string, TabIcon> = {
   groups: Home,
   expenses: Receipt,
   activity: Activity,
@@ -24,10 +44,7 @@ const LABELS: Record<string, string> = {
 /** Action triggered by the central FAB. */
 const FAB_HREF = '/(app)/groups/new';
 
-export const CustomTabBar: React.FC<BottomTabBarProps> = ({
-  state,
-  navigation,
-}) => {
+export const CustomTabBar: React.FC<TabBarProps> = ({ state, navigation }) => {
   const theme = useTheme();
   const insets = useSafeAreaInsets();
 

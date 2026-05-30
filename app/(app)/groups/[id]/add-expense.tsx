@@ -1,6 +1,6 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { View, TextInput } from 'react-native';
-import { router } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import { useTheme } from '../../../../src/theme/ThemeProvider';
 import { Screen } from '../../../../src/components/layout/Screen';
 import { Header } from '../../../../src/components/layout/Header';
@@ -12,27 +12,48 @@ import {
   SegmentedControl,
   type SegmentOption,
 } from '../../../../src/components/ui';
+import { Spinner } from '../../../../src/components/feedback';
+import {
+  useGroup,
+  useGroupMembers,
+  useCreateExpense,
+} from '../../../../src/hooks';
+import { useAuthStore } from '../../../../src/stores/auth.store';
+import { ClientError } from '../../../../src/api/errors';
 
-type SplitMode = 'equal' | 'exact' | 'percent';
+type SplitMode = 'EQUAL';
 
 const SPLIT_OPTIONS: SegmentOption<SplitMode>[] = [
-  { value: 'equal', label: 'Split Equally' },
-  { value: 'exact', label: 'By Exact' },
-  { value: 'percent', label: 'By %' },
+  { value: 'EQUAL', label: 'Split Equally' },
 ];
-
-const FRIENDS = ['Alex', 'Maria', 'Bob', 'You'];
 
 export default function AddExpenseScreen() {
   const theme = useTheme();
+  const { id } = useLocalSearchParams<{ id: string }>();
+  const groupId = String(id);
+  const userId = useAuthStore(s => s.user?.id);
+
+  const group = useGroup(groupId);
+  const members = useGroupMembers(groupId);
+  const createExpense = useCreateExpense(groupId);
+
   const [amount, setAmount] = useState('');
   const [description, setDescription] = useState('');
-  const [selected, setSelected] = useState<string[]>(['You', 'Alex']);
-  const [splitMode, setSplitMode] = useState<SplitMode>('equal');
+  const [selected, setSelected] = useState<string[]>([]);
+  const [splitMode, setSplitMode] = useState<SplitMode>('EQUAL');
 
-  const toggleFriend = (name: string) =>
+  const currency = group.data?.currency ?? 'USD';
+
+  // Default to splitting between everyone once members load.
+  useEffect(() => {
+    if (members.data && selected.length === 0) {
+      setSelected(members.data.map(m => m.userId));
+    }
+  }, [members.data, selected.length]);
+
+  const toggle = (uid: string) =>
     setSelected(prev =>
-      prev.includes(name) ? prev.filter(n => n !== name) : [...prev, name],
+      prev.includes(uid) ? prev.filter(x => x !== uid) : [...prev, uid],
     );
 
   const perPerson = useMemo(() => {
@@ -45,7 +66,33 @@ export default function AddExpenseScreen() {
     if (router.canGoBack()) router.back();
   };
 
-  const canSave = (parseFloat(amount) || 0) > 0 && selected.length > 0;
+  const canSave =
+    (parseFloat(amount) || 0) > 0 &&
+    description.trim().length > 0 &&
+    selected.length > 0 &&
+    !createExpense.isPending;
+
+  const handleSave = () => {
+    const normalized = (parseFloat(amount) || 0).toFixed(2);
+    createExpense.mutate(
+      {
+        description: description.trim(),
+        amount: normalized,
+        currency,
+        paidBy: userId,
+        splitType: 'EQUAL',
+        participantIds: selected,
+      },
+      { onSuccess: close },
+    );
+  };
+
+  const errorMessage =
+    createExpense.error instanceof ClientError
+      ? createExpense.error.message
+      : createExpense.error
+        ? 'Could not save the expense. Please try again.'
+        : undefined;
 
   return (
     <Screen variant='scroll' padding='lg' edges={['top', 'left', 'right']}>
@@ -58,10 +105,8 @@ export default function AddExpenseScreen() {
             variant='ghost'
             size='sm'
             disabled={!canSave}
-            textColor={
-              canSave ? theme.colors.brand[400] : theme.colors.text.muted
-            }
-            onPress={close}
+            textColor={canSave ? theme.colors.brand[400] : theme.colors.text.muted}
+            onPress={handleSave}
           >
             Save
           </Button>
@@ -72,7 +117,7 @@ export default function AddExpenseScreen() {
       <Column align='center' gap='sm' style={{ paddingVertical: theme.spacing['2xl'] }}>
         <Row gap='xs' align='center'>
           <Typography variant='display' color='muted'>
-            $
+            {symbol(currency)}
           </Typography>
           <TextInput
             value={amount}
@@ -115,21 +160,29 @@ export default function AddExpenseScreen() {
           />
         </Column>
 
-        {/* Friend chips */}
+        {/* Member chips */}
         <Column gap='md'>
           <Typography variant='caption' color='secondary' weight='medium'>
             Split between
           </Typography>
-          <Row gap='sm' wrap>
-            {FRIENDS.map(name => (
-              <Chip
-                key={name}
-                label={name}
-                selected={selected.includes(name)}
-                onPress={() => toggleFriend(name)}
-              />
-            ))}
-          </Row>
+          {members.isLoading ? (
+            <Spinner size='small' style={{ alignItems: 'flex-start' }} />
+          ) : (
+            <Row gap='sm' wrap>
+              {(members.data ?? []).map(member => (
+                <Chip
+                  key={member.userId}
+                  label={
+                    member.userId === userId
+                      ? 'You'
+                      : member.user?.name ?? 'Member'
+                  }
+                  selected={selected.includes(member.userId)}
+                  onPress={() => toggle(member.userId)}
+                />
+              ))}
+            </Row>
+          )}
         </Column>
 
         {/* Split mode */}
@@ -139,22 +192,38 @@ export default function AddExpenseScreen() {
           onChange={setSplitMode}
         />
 
-        {splitMode === 'equal' && selected.length > 0 && (
-          <View
-            style={{
-              alignItems: 'center',
-              paddingVertical: theme.spacing.md,
-            }}
-          >
+        {selected.length > 0 && (
+          <View style={{ alignItems: 'center', paddingVertical: theme.spacing.md }}>
             <Typography variant='caption' color='secondary'>
               Each pays{' '}
               <Typography variant='caption' weight='semibold' color='accent'>
-                ${(perPerson / 100).toFixed(2)}
+                {symbol(currency)}
+                {(perPerson / 100).toFixed(2)}
               </Typography>
             </Typography>
           </View>
         )}
+
+        {errorMessage && (
+          <Typography variant='caption' color='negative' align='center'>
+            {errorMessage}
+          </Typography>
+        )}
+
+        <Button
+          variant='primary'
+          size='lg'
+          fullWidth
+          loading={createExpense.isPending}
+          disabled={!canSave}
+          onPress={handleSave}
+        >
+          Save Expense
+        </Button>
       </Column>
     </Screen>
   );
 }
+
+const symbol = (code: string): string =>
+  ({ USD: '$', EUR: '€', GBP: '£', JPY: '¥' })[code] ?? `${code} `;

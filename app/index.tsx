@@ -1,26 +1,36 @@
 import React, { useEffect } from 'react';
+import { View } from 'react-native';
 import { Redirect } from 'expo-router';
 import { useAuthStore } from '../src/stores/auth.store';
+import { useTheme } from '../src/theme/ThemeProvider';
+import { Spinner } from '../src/components/feedback';
 
 export default function IndexScreen() {
-  // TODO: FIX THIS LATER, FOR NOW IT'S ALWAYS AUTHENTICATED
-  // const { token, status, initializeAuth } = useAuthStore();
+  const theme = useTheme();
+  const token = useAuthStore(s => s.token);
+  const status = useAuthStore(s => s.status);
+  const initializeAuth = useAuthStore(s => s.initializeAuth);
 
-  // Initialize auth on app start
-  // useEffect(() => {
-  //   initializeAuth();
-  // }, []);
+  useEffect(() => {
+    initializeAuth();
+  }, [initializeAuth]);
 
-  // Show loading state while checking auth
-  // if (status === 'loading') {
-  //   return null; // You could show a splash screen here
-  // }
+  if (status === 'loading') {
+    return (
+      <View
+        style={{
+          flex: 1,
+          backgroundColor: theme.colors.surface.primary,
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}
+      >
+        <Spinner />
+      </View>
+    );
+  }
 
-  const status = 'authenticated';
-  const token = '123';
-
-  // Redirect based on authentication status
-  if (token && status === 'authenticated') {
+  if (token) {
     return <Redirect href='/(app)/groups' />;
   }
 

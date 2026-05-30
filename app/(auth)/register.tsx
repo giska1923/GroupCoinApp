@@ -6,12 +6,32 @@ import { Screen } from '../../src/components/layout/Screen';
 import { Header } from '../../src/components/layout/Header';
 import { Column } from '../../src/components/layout/Row';
 import { Typography, TextField, Button } from '../../src/components/ui';
+import { useRegister } from '../../src/hooks';
+import { ClientError } from '../../src/api/errors';
 
 export default function RegisterScreen() {
   const theme = useTheme();
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const register = useRegister();
+
+  const errorMessage =
+    register.error instanceof ClientError
+      ? register.error.message
+      : register.error
+        ? 'Could not create your account. Please try again.'
+        : undefined;
+
+  const canSubmit =
+    name.trim().length > 0 && email.trim().length > 0 && password.length >= 8;
+
+  const handleSubmit = () => {
+    register.mutate(
+      { name: name.trim(), email: email.trim(), password },
+      { onSuccess: () => router.replace('/(app)/groups') },
+    );
+  };
 
   return (
     <Screen variant='scroll' padding='lg' edges={['top', 'bottom', 'left', 'right']}>
@@ -54,11 +74,19 @@ export default function RegisterScreen() {
           />
         </Column>
 
+        {errorMessage && (
+          <Typography variant='caption' color='negative'>
+            {errorMessage}
+          </Typography>
+        )}
+
         <Button
           variant='primary'
           size='lg'
           fullWidth
-          onPress={() => router.replace('/(app)/groups')}
+          loading={register.isPending}
+          disabled={!canSubmit}
+          onPress={handleSubmit}
         >
           Create Account
         </Button>
