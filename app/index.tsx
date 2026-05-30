@@ -1,31 +1,24 @@
-import { View, Text, StyleSheet } from 'react-native';
+import React, { useEffect } from 'react';
+import { Redirect } from 'expo-router';
+import { useAuthStore } from '../src/stores/auth.store';
 
-export default function HomeScreen() {
-  return (
-    <View style={styles.container}>
-      <Text style={styles.title}>GroupCoin Mobile</Text>
-      <Text style={styles.subtitle}>Welcome to your expense sharing app!</Text>
-    </View>
-  );
+export default function IndexScreen() {
+  const { token, status, initializeAuth } = useAuthStore();
+
+  // Initialize auth on app start
+  useEffect(() => {
+    initializeAuth();
+  }, []);
+
+  // Show loading state while checking auth
+  if (status === 'loading') {
+    return null; // You could show a splash screen here
+  }
+
+  // Redirect based on authentication status
+  if (token && status === 'authenticated') {
+    return <Redirect href="/(app)/groups" />;
+  }
+
+  return <Redirect href="/(auth)/welcome" />;
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: 20,
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginBottom: 10,
-    color: '#0ea5e9',
-  },
-  subtitle: {
-    fontSize: 16,
-    textAlign: 'center',
-    color: '#666',
-  },
-});

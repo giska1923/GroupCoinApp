@@ -1,94 +1,197 @@
 /**
- * Design tokens for GroupCoin mobile app
- * These tokens are used by Tailwind config and can be referenced directly in components
+ * Design tokens for GroupCoin mobile app - Dark Theme
+ * Based on the Equinox Flow design system
  */
 
 export const colors = {
+  // Brand colors - Purple/Blue theme from screenshot
   brand: {
-    50: '#f0f9ff',
-    100: '#e0f2fe',
-    200: '#bae6fd',
-    300: '#7dd3fc',
-    400: '#38bdf8',
-    500: '#0ea5e9', // Primary brand color (sky-500)
-    600: '#0284c7',
-    700: '#0369a1',
-    800: '#075985',
-    900: '#0c4a6e',
-    950: '#082f49',
+    50: '#f0f4ff',
+    100: '#e0e7ff',
+    200: '#c7d2fe',
+    300: '#a5b4fc',
+    400: '#818cf8',
+    500: '#6366f1', // Primary brand color
+    600: '#4f46e5',
+    700: '#4338ca',
+    800: '#3730a3',
+    900: '#312e81',
+    950: '#1e1b4b',
   },
-  positive: '#16a34a', // Money owed to you (green-600)
-  negative: '#dc2626', // Money you owe (red-600)
+
+  // Financial colors from screenshot
+  financialPositive: '#10b981', // Bright green for money owed to you
+  financialNegative: '#ef4444', // Red for money you owe
+  financialWarning: '#f59e0b', // Amber for pending
+
+  // Dark theme surfaces
   surface: {
-    light: '#ffffff',
-    dark: '#0b1220',
+    primary: '#0f0f23', // Main background (very dark blue)
+    secondary: '#1a1a2e', // Card backgrounds
+    tertiary: '#16213e', // Elevated surfaces
+    border: '#252545', // Borders and dividers
   },
+
+  // Text colors for dark theme
   text: {
-    primary: '#0f172a',    // slate-900
-    secondary: '#475569',  // slate-600
-    muted: '#64748b',      // slate-500
-    inverse: '#f8fafc',    // slate-50
+    primary: '#ffffff', // Primary white text
+    secondary: '#a1a1aa', // Secondary gray text
+    muted: '#6b7280', // Muted gray text
+    inverse: '#0f172a', // Dark text (for light surfaces)
+    accent: '#8b5cf6', // Accent purple text
   },
-  border: {
-    light: '#e2e8f0',     // slate-200
-    dark: '#334155',      // slate-700
+
+  // Status colors with dark theme variants
+  success: {
+    DEFAULT: '#10b981',
+    bg: '#064e3b',
+    border: '#065f46',
   },
-  background: {
-    light: '#f8fafc',     // slate-50
-    dark: '#0f172a',      // slate-900
+  error: {
+    DEFAULT: '#ef4444',
+    bg: '#7f1d1d',
+    border: '#991b1b',
+  },
+  warning: {
+    DEFAULT: '#f59e0b',
+    bg: '#78350f',
+    border: '#92400e',
+  },
+  info: {
+    DEFAULT: '#3b82f6',
+    bg: '#1e3a8a',
+    border: '#1d4ed8',
   },
 } as const;
 
+// Spacing scale - generous spacing from screenshot
 export const spacing = {
-  xs: 4,   // 1
-  sm: 8,   // 2
-  md: 16,  // 4
-  lg: 24,  // 6
-  xl: 32,  // 8
-  xxl: 48, // 12
+  xs: 4, // 1 - Tight spacing
+  sm: 8, // 2 - Small spacing
+  md: 12, // 3 - Medium spacing
+  lg: 16, // 4 - Large spacing
+  xl: 20, // 5 - Extra large
+  '2xl': 24, // 6 - 2X large
+  '3xl': 32, // 8 - 3X large
+  '4xl': 40, // 10 - 4X large
+  '5xl': 48, // 12 - 5X large
+  '6xl': 64, // 16 - 6X large
 } as const;
 
+// Border radius - rounded corners from screenshot
 export const radius = {
+  none: 0,
   sm: 6,
-  md: 10,
-  lg: 16,
-  xl: 20,
-  full: 9999,
+  md: 8,
+  lg: 12, // Cards and buttons
+  xl: 16, // Large cards
+  '2xl': 20, // Modal corners
+  '3xl': 24, // Large components
+  full: 9999, // Pills and circular elements
 } as const;
 
+// Typography scale matching the screenshot hierarchy
 export const fontSize = {
-  xs: 12,
-  sm: 14,
-  base: 16,
-  lg: 18,
-  xl: 20,
-  '2xl': 24,
-  '3xl': 30,
-  '4xl': 36,
+  xs: 11, // Very small text
+  sm: 12, // Small labels
+  base: 14, // Body text
+  md: 16, // Medium text
+  lg: 18, // Large text
+  xl: 20, // Extra large
+  '2xl': 24, // Headings
+  '3xl': 28, // Large headings
+  '4xl': 32, // Hero text
+  '5xl': 36, // Display text
 } as const;
 
 export const lineHeight = {
-  xs: 16,
-  sm: 20,
-  base: 24,
-  lg: 28,
-  xl: 28,
-  '2xl': 32,
-  '3xl': 36,
-  '4xl': 40,
+  tight: 1.1,
+  snug: 1.2,
+  normal: 1.4,
+  relaxed: 1.5,
+  loose: 1.6,
 } as const;
 
 export const fontWeight = {
+  light: '300',
   normal: '400',
   medium: '500',
   semibold: '600',
   bold: '700',
+  extrabold: '800',
 } as const;
 
+// Shadows for depth (dark theme)
+export const shadow = {
+  sm: {
+    shadowColor: '#000000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.3,
+    shadowRadius: 2,
+    elevation: 2,
+  },
+  md: {
+    shadowColor: '#000000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 4,
+  },
+  lg: {
+    shadowColor: '#000000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 8,
+  },
+} as const;
+
+// Animation and transitions
+export const animation = {
+  fast: 150,
+  normal: 200,
+  slow: 300,
+  slower: 500,
+} as const;
+
+// Z-index scale
 export const zIndex = {
-  backdrop: 40,
-  modal: 50,
-  popover: 60,
-  tooltip: 70,
-  toast: 80,
+  hide: -1,
+  auto: 'auto',
+  base: 0,
+  docked: 10,
+  dropdown: 1000,
+  sticky: 1100,
+  banner: 1200,
+  overlay: 1300,
+  modal: 1400,
+  popover: 1500,
+  skipLink: 1600,
+  toast: 1700,
+  tooltip: 1800,
+} as const;
+
+// Component-specific tokens
+export const components = {
+  card: {
+    padding: spacing.lg,
+    radius: radius.lg,
+    shadow: shadow.md,
+  },
+  button: {
+    height: 48,
+    radius: radius.lg,
+    padding: spacing.lg,
+  },
+  input: {
+    height: 48,
+    radius: radius.md,
+    padding: spacing.md,
+  },
+  avatar: {
+    sm: 32,
+    md: 40,
+    lg: 48,
+    xl: 64,
+  },
 } as const;

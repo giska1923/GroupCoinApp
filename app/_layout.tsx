@@ -1,13 +1,17 @@
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
+import { ThemeProvider } from '../src/theme/ThemeProvider';
 
 export default function RootLayout() {
   return (
-    <>
-      <StatusBar style="auto" />
-      <Stack>
-        <Stack.Screen name="index" options={{ headerShown: false }} />
+    <ThemeProvider>
+      <StatusBar style='light' />
+      <Stack screenOptions={{ headerShown: false }}>
+        <Stack.Screen name='index' />
+        <Stack.Screen name='(auth)' />
+        <Stack.Screen name='(app)' />
+        <Stack.Screen name='+not-found' />
       </Stack>
-    </>
+    </ThemeProvider>
   );
 }

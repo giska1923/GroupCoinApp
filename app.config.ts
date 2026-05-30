@@ -32,7 +32,10 @@ export default ({ config }: ConfigContext): ExpoConfig => {
     web: {
       favicon: './assets/favicon.png',
     },
-    plugins: ['expo-router', 'expo-status-bar'],
+    plugins: [
+      'expo-router',
+      'expo-secure-store',
+    ],
     extra: {
       apiUrl: getApiUrl(appEnv),
       appEnv,

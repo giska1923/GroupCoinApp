@@ -1,37 +1,56 @@
-import { View, Text } from 'react-native';
-import { Link } from 'expo-router';
+import React from 'react';
+import { TouchableOpacity } from 'react-native';
+import { router } from 'expo-router';
+import { Coins, LogIn, UserPlus } from 'lucide-react-native';
+import { useTheme } from '../../src/theme/ThemeProvider';
+import { Screen } from '../../src/components/layout/Screen';
+import { Column } from '../../src/components/layout/Row';
+import { Typography, Button } from '../../src/components/ui';
 
 export default function WelcomeScreen() {
+  const theme = useTheme();
+
   return (
-    <View className="flex-1 bg-white justify-center items-center px-6">
-      <View className="items-center mb-12">
-        <Text className="text-4xl font-bold text-brand-500 mb-4">
-          GroupCoin
-        </Text>
-        <Text className="text-lg text-text-secondary text-center">
-          Split expenses with friends and family
-        </Text>
-      </View>
-      
-      <View className="w-full space-y-4">
-        <Link 
-          href="/(auth)/login" 
-          className="bg-brand-500 py-4 px-8 rounded-lg"
-        >
-          <Text className="text-white text-lg font-semibold text-center">
+    <Screen variant='fixed' padding='lg'>
+      <Column justify='center' align='center' gap='xl' style={{ flex: 1 }}>
+        {/* Logo and Title */}
+        <Column align='center' gap='lg'>
+          <Coins size={64} />
+          <Typography variant='display' color='primary' weight='bold'>
+            GroupCoin
+          </Typography>
+          <Typography
+            variant='subheading'
+            color='secondary'
+            style={{ textAlign: 'center', maxWidth: 280 }}
+          >
+            Split expenses with friends and family
+          </Typography>
+        </Column>
+
+        {/* Buttons */}
+        <Column gap='md' style={{ width: '100%' }}>
+          <Button
+            variant='primary'
+            size='lg'
+            icon={<LogIn size={20} />}
+            iconPosition='left'
+            onPress={() => router.push('/(auth)/login')}
+          >
             Sign In
-          </Text>
-        </Link>
-        
-        <Link 
-          href="/(auth)/register"
-          className="border border-brand-500 py-4 px-8 rounded-lg"
-        >
-          <Text className="text-brand-500 text-lg font-semibold text-center">
+          </Button>
+
+          <Button
+            variant='outline'
+            size='lg'
+            icon={<UserPlus size={20} />}
+            iconPosition='left'
+            onPress={() => router.push('/(auth)/register')}
+          >
             Create Account
-          </Text>
-        </Link>
-      </View>
-    </View>
+          </Button>
+        </Column>
+      </Column>
+    </Screen>
   );
 }

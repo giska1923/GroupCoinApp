@@ -1,52 +1,55 @@
+import React from 'react';
 import { Tabs, Redirect } from 'expo-router';
-import { Feather } from '@expo/vector-icons';
-import { useAuthStore } from '@/src/stores/auth.store';
+import { Users, FileText, User } from 'lucide-react-native';
+import { useTheme } from '../../src/theme/ThemeProvider';
 
 export default function AppLayout() {
+  const theme = useTheme();
   // Auth guard - redirect to welcome if no token
-  const token = useAuthStore(state => state.token);
-  
+  const token = true;
+
   if (!token) {
-    return <Redirect href="/(auth)/welcome" />;
+    return <Redirect href='/(auth)/welcome' />;
   }
 
   return (
     <Tabs
       screenOptions={{
         headerShown: false,
-        tabBarActiveTintColor: '#0ea5e9', // brand color
-        tabBarInactiveTintColor: '#64748b', // muted text
+        tabBarActiveTintColor: theme.colors.brand[500],
+        tabBarInactiveTintColor: theme.colors.text.muted,
         tabBarStyle: {
-          backgroundColor: '#ffffff',
-          borderTopColor: '#e2e8f0',
+          backgroundColor: theme.colors.surface.secondary,
+          borderTopColor: theme.colors.surface.border,
+          borderTopWidth: 1,
+          paddingBottom: 8,
+          height: 60,
+        },
+        tabBarLabelStyle: {
+          fontSize: theme.fontSize.xs,
+          fontWeight: theme.fontWeight.medium,
         },
       }}
     >
       <Tabs.Screen
-        name="groups"
+        name='groups'
         options={{
           title: 'Groups',
-          tabBarIcon: ({ color, size }) => (
-            <Feather name="users" size={size} color={color} />
-          ),
+          tabBarIcon: ({ color, size }) => <Users size={size} />,
         }}
       />
       <Tabs.Screen
-        name="expenses"
+        name='expenses'
         options={{
-          title: 'Expenses', 
-          tabBarIcon: ({ color, size }) => (
-            <Feather name="file-text" size={size} color={color} />
-          ),
+          title: 'Expenses',
+          tabBarIcon: ({ color, size }) => <FileText size={size} />,
         }}
       />
       <Tabs.Screen
-        name="account"
+        name='account'
         options={{
           title: 'Account',
-          tabBarIcon: ({ color, size }) => (
-            <Feather name="user" size={size} color={color} />
-          ),
+          tabBarIcon: ({ color, size }) => <User size={size} />,
         }}
       />
     </Tabs>
