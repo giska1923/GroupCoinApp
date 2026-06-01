@@ -52,7 +52,7 @@ export default function ActivityScreen() {
           gap='xl'
           style={{
             paddingHorizontal: theme.spacing.lg,
-            paddingBottom: theme.spacing['6xl'],
+            paddingBottom: theme.spacing.lg,
           }}
         >
           {sections.map(section => (

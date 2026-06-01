@@ -54,7 +54,7 @@ export default function GroupDetailScreen() {
         gap='lg'
         style={{
           paddingHorizontal: theme.spacing.lg,
-          paddingBottom: theme.spacing['6xl'],
+          paddingBottom: theme.spacing.lg,
         }}
       >
         {/* Group balance summary */}

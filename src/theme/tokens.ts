@@ -30,6 +30,8 @@ export const colors = {
     secondary: '#1a1a2e', // Card backgrounds
     tertiary: '#16213e', // Elevated surfaces
     border: '#252545', // Borders and dividers
+    tabBar: 'rgba(10, 10, 20, 0.82)', // Floating tab bar (near-black, translucent)
+    tabBarBorder: 'rgba(255, 255, 255, 0.07)', // Hairline along the tab bar's top edge
   },
 
   // Text colors for dark theme
@@ -199,6 +201,8 @@ export const components = {
     height: 64,
     radius: radius['3xl'],
     fab: 56,
+    notchRadius: 38, // Radius of the concave cradle that hugs the FAB
+    notchDepth: 28, // How far the cradle dips below the bar's top edge
   },
   sheet: {
     radius: radius['2xl'],

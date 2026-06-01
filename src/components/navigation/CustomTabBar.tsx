@@ -1,10 +1,11 @@
 import React from 'react';
-import { View, TouchableOpacity } from 'react-native';
+import { View, TouchableOpacity, useWindowDimensions } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import { Home, Receipt, Activity, User, Plus } from 'lucide-react-native';
 import { useTheme } from '../../theme/ThemeProvider';
 import { Typography } from '../ui/Typography';
+import { TabBarBackground } from './TabBarBackground';
 
 type TabIcon = React.ComponentType<{ size?: number; color?: string }>;
 
@@ -53,13 +54,16 @@ const FAB_HREF = '/(app)/groups/new';
 export const CustomTabBar: React.FC<TabBarProps> = ({ state, navigation }) => {
   const theme = useTheme();
   const insets = useSafeAreaInsets();
+  const { width: screenWidth } = useWindowDimensions();
+
+  const fab = theme.components.tabBar.fab;
+  const barHeight = theme.components.tabBar.height;
+  const totalHeight = barHeight + insets.bottom;
 
   const renderTab = (routeKey: string, routeName: string, index: number) => {
     const isFocused = state.index === index;
     const IconComponent = ICONS[routeName] ?? Home;
-    const color = isFocused
-      ? theme.colors.brand[400]
-      : theme.colors.text.muted;
+    const color = isFocused ? theme.colors.brand[400] : theme.colors.text.muted;
 
     const onPress = () => {
       const event = navigation.emit({
@@ -108,18 +112,30 @@ export const CustomTabBar: React.FC<TabBarProps> = ({ state, navigation }) => {
   return (
     <View
       style={{
-        backgroundColor: theme.colors.surface.secondary,
-        borderTopWidth: 1,
-        borderTopColor: theme.colors.surface.border,
-        paddingBottom: insets.bottom,
-        ...theme.shadow.lg,
+        position: 'absolute',
+        left: 0,
+        right: 0,
+        bottom: 0,
+        height: totalHeight,
       }}
+      pointerEvents='box-none'
     >
+      <TabBarBackground
+        width={screenWidth}
+        height={totalHeight}
+        notchCenter={screenWidth / 2}
+        notchRadius={theme.components.tabBar.notchRadius}
+        notchDepth={theme.components.tabBar.notchDepth}
+        cornerRadius={theme.components.tabBar.radius}
+        fill={theme.colors.surface.tabBar}
+        stroke={theme.colors.surface.tabBarBorder}
+      />
+
       <View
         style={{
           flexDirection: 'row',
           alignItems: 'center',
-          height: theme.components.tabBar.height,
+          height: barHeight,
           paddingHorizontal: theme.spacing.sm,
         }}
       >
@@ -127,12 +143,14 @@ export const CustomTabBar: React.FC<TabBarProps> = ({ state, navigation }) => {
           renderTab(route.key, route.name, i),
         )}
 
-        <View style={{ width: theme.components.tabBar.fab + theme.spacing.lg }}>
+        <View style={{ width: fab + theme.spacing.lg }}>
           <View
             style={{
               position: 'absolute',
               alignSelf: 'center',
-              top: -theme.components.tabBar.fab / 2,
+              // Lift the FAB so it sits above the cradle curve rather than
+              // nestling into it.
+              top: -fab / 2 - theme.spacing.xl,
             }}
           >
             <TouchableOpacity
@@ -141,15 +159,17 @@ export const CustomTabBar: React.FC<TabBarProps> = ({ state, navigation }) => {
               activeOpacity={0.85}
               onPress={() => router.push(FAB_HREF)}
               style={{
-                width: theme.components.tabBar.fab,
-                height: theme.components.tabBar.fab,
-                borderRadius: theme.components.tabBar.fab / 2,
+                width: fab,
+                height: fab,
+                borderRadius: fab / 2,
                 backgroundColor: theme.colors.brand[500],
                 alignItems: 'center',
                 justifyContent: 'center',
-                borderWidth: 4,
-                borderColor: theme.colors.surface.primary,
-                ...theme.shadow.lg,
+                shadowColor: theme.colors.brand[500],
+                shadowOffset: { width: 0, height: 6 },
+                shadowOpacity: 0.5,
+                shadowRadius: 12,
+                elevation: 10,
               }}
             >
               <Plus size={26} color={theme.colors.text.primary} />

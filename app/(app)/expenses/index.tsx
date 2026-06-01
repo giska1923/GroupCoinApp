@@ -49,7 +49,7 @@ export default function ExpensesScreen() {
         style={{
           paddingHorizontal: theme.spacing.lg,
           paddingTop: theme.spacing.xl,
-          paddingBottom: theme.spacing['6xl'],
+          paddingBottom: theme.spacing.lg,
         }}
       >
         {isLoading ? (

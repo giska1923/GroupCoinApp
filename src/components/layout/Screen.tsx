@@ -6,7 +6,11 @@ import {
   ScrollViewProps,
   RefreshControl,
 } from 'react-native';
-import { SafeAreaView, Edge } from 'react-native-safe-area-context';
+import {
+  SafeAreaView,
+  Edge,
+  useSafeAreaInsets,
+} from 'react-native-safe-area-context';
 import { useTheme } from '../../theme/ThemeProvider';
 
 type ScreenVariant = 'scroll' | 'fixed';
@@ -40,6 +44,14 @@ export const Screen: React.FC<ScreenProps> = ({
   scrollViewProps,
 }) => {
   const theme = useTheme();
+  const insets = useSafeAreaInsets();
+
+  // The tab bar floats over content, so screens that don't own the bottom
+  // safe-area edge (i.e. the ones living under the tab bar) must reserve room
+  // for it; otherwise their last items would scroll under the bar.
+  const tabBarClearance = edges.includes('bottom')
+    ? 0
+    : insets.bottom + theme.components.tabBar.height;
 
   const getPaddingStyle = (): ViewStyle => {
     switch (padding) {
@@ -62,6 +74,7 @@ export const Screen: React.FC<ScreenProps> = ({
 
   const contentStyle: ViewStyle = {
     ...getPaddingStyle(),
+    paddingBottom: tabBarClearance,
     ...contentContainerStyle,
   };
 

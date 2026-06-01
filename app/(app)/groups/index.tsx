@@ -102,7 +102,7 @@ export default function GroupsScreen() {
             style={{
               paddingHorizontal: theme.spacing.lg,
               paddingTop: theme.spacing.xl,
-              paddingBottom: theme.spacing['6xl'],
+              paddingBottom: theme.spacing.lg,
             }}
           >
             <Card variant='default' padding='none'>
