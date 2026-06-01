@@ -1,10 +1,13 @@
 import { apiClient } from '../client';
 import { endpoints } from '../endpoints';
-import type { ActivityDTO } from '../../types/api';
+import type { ActivityDTO, ActivityPageDTO } from '../../types/api';
 
 export const activityApi = {
-  listByGroup: (groupId: string, params?: { page?: number; limit?: number }) =>
+  listByGroup: (
+    groupId: string,
+    params?: { limit?: number; offset?: number },
+  ) =>
     apiClient
-      .get<ActivityDTO[]>(endpoints.groups.activity(groupId), { params })
-      .then(r => r.data),
+      .get<ActivityPageDTO>(endpoints.groups.activity(groupId), { params })
+      .then(r => r.data.items),
 };

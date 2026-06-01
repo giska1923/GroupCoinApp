@@ -32,6 +32,9 @@ const ICONS: Record<string, TabIcon> = {
   expenses: Receipt,
   activity: Activity,
   account: User,
+  'expenses/index': Receipt,
+  'activity/index': Activity,
+  'account/index': User,
 };
 
 const LABELS: Record<string, string> = {
@@ -39,6 +42,9 @@ const LABELS: Record<string, string> = {
   expenses: 'Expenses',
   activity: 'Activity',
   account: 'Account',
+  'expenses/index': 'Expenses',
+  'activity/index': 'Activity',
+  'account/index': 'Account',
 };
 
 /** Action triggered by the central FAB. */

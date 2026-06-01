@@ -35,7 +35,7 @@ export interface ActivityCopy {
 
 /** Maps an activity event to display copy, reading structured metadata. */
 export const formatActivity = (activity: ActivityDTO): ActivityCopy => {
-  const actor = activity.user?.name ?? 'Someone';
+  const actor = activity.actor?.name ?? 'Someone';
   const meta = activity.metadata ?? {};
   const description = (meta.description as string) ?? 'an item';
   const amount =

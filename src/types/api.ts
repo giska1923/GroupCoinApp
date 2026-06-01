@@ -99,11 +99,20 @@ export interface SettlementDTO {
 export interface ActivityDTO {
   id: string;
   type: 'EXPENSE_CREATED' | 'EXPENSE_UPDATED' | 'EXPENSE_DELETED' | 'SETTLEMENT_CREATED' | 'MEMBER_JOINED' | 'MEMBER_LEFT';
-  groupId: string;
-  userId: string;
-  metadata: Record<string, any>;
+  actorId: string;
+  groupId: string | null;
+  entityType?: string | null;
+  entityId?: string | null;
+  metadata: Record<string, unknown>;
   createdAt: string;
-  user: UserDTO;
+  actor?: UserDTO;
+}
+
+export interface ActivityPageDTO {
+  items: ActivityDTO[];
+  total: number;
+  limit: number;
+  offset: number;
 }
 
 // Request payload types
