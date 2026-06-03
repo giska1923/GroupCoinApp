@@ -8,6 +8,8 @@ import { Typography } from '../ui/Typography';
 interface HeaderProps {
   title?: string;
   subtitle?: string;
+  /** `brand` = large lavender app title (Equinox Flow style). */
+  titleTone?: 'default' | 'brand';
   /** Show a leading nav button. `back` = chevron, `close` = X, `none` = nothing. */
   leading?: 'back' | 'close' | 'none';
   onLeadingPress?: () => void;
@@ -19,6 +21,7 @@ interface HeaderProps {
 export const Header: React.FC<HeaderProps> = ({
   title,
   subtitle,
+  titleTone = 'default',
   leading = 'back',
   onLeadingPress,
   right,
@@ -45,7 +48,12 @@ export const Header: React.FC<HeaderProps> = ({
         ...style,
       }}
     >
-      <View style={{ width: 40, alignItems: 'flex-start' }}>
+      <View
+        style={{
+          width: leading === 'none' ? 0 : 40,
+          alignItems: 'flex-start',
+        }}
+      >
         {leading !== 'none' && (
           <TouchableOpacity
             onPress={handleLeading}
@@ -66,7 +74,12 @@ export const Header: React.FC<HeaderProps> = ({
 
       <View style={{ flex: 1, alignItems: align === 'center' ? 'center' : 'flex-start' }}>
         {title && (
-          <Typography variant='subheading' weight='semibold' numberOfLines={1}>
+          <Typography
+            variant={titleTone === 'brand' ? 'title' : 'subheading'}
+            color={titleTone === 'brand' ? 'accent' : 'primary'}
+            weight={titleTone === 'brand' ? 'bold' : 'semibold'}
+            numberOfLines={1}
+          >
             {title}
           </Typography>
         )}

@@ -22,8 +22,17 @@ import { useOverview } from '../../../src/hooks';
 
 export default function GroupsScreen() {
   const theme = useTheme();
-  const { groups, groupsQuery, netFlowCents, owedToYou, isLoadingBalances } =
-    useOverview();
+  const {
+    groups,
+    groupsQuery,
+    netFlowCents,
+    owedToYou,
+    youOwe,
+    isLoadingBalances,
+  } = useOverview();
+
+  const netFlowType =
+    netFlowCents > 0 ? 'positive' : netFlowCents < 0 ? 'negative' : 'neutral';
 
   return (
     <Screen
@@ -35,6 +44,7 @@ export default function GroupsScreen() {
       <View style={{ paddingHorizontal: theme.spacing.lg }}>
         <Header
           title='GroupCoin'
+          titleTone='brand'
           leading='none'
           align='left'
           right={<Bell size={22} color={theme.colors.text.secondary} />}
@@ -43,19 +53,75 @@ export default function GroupsScreen() {
 
       {/* Net Flow */}
       <View style={{ paddingHorizontal: theme.spacing.lg, paddingBottom: theme.spacing.xl }}>
-        <Card variant='elevated' padding='lg' style={{ alignItems: 'center' }}>
-          <Typography variant='caption' color='secondary' style={{ marginBottom: theme.spacing.sm }}>
+        <Card
+          variant='elevated'
+          padding='md'
+          style={{
+            alignItems: 'center',
+            paddingVertical: theme.spacing.lg,
+          }}
+        >
+          <Typography
+            variant='subheading'
+            color='primary'
+            weight='medium'
+            align='center'
+            style={{ marginBottom: theme.spacing.sm }}
+          >
             Net Flow
           </Typography>
           {isLoadingBalances ? (
             <Spinner size='small' />
           ) : (
-            <Amount value={netFlowCents} variant='display' showSign />
+            <Amount
+              value={netFlowCents}
+              variant='hero'
+              type={netFlowType}
+              showSign
+              glow={netFlowCents !== 0}
+            />
           )}
-          <Typography variant='caption' color='secondary' style={{ marginTop: theme.spacing.sm }}>
-            You are owed{' '}
-            <Amount value={owedToYou} variant='small' showSign={false} />
-          </Typography>
+          {!isLoadingBalances && (
+            <View
+              style={{
+                alignItems: 'center',
+                gap: theme.spacing.xs,
+                marginTop: theme.spacing.sm,
+                width: '100%',
+              }}
+            >
+              <View style={{ flexDirection: 'row', alignItems: 'baseline', gap: 6 }}>
+                <Typography
+                  variant='body'
+                  color='negativeMuted'
+                  weight='medium'
+                  style={{
+                    fontSize: theme.fontSize.md,
+                    lineHeight: theme.fontSize.md * 1.4,
+                  }}
+                >
+                  You owe:
+                </Typography>
+                <Amount
+                  value={youOwe}
+                  variant='detail'
+                  type='negativeMuted'
+                  showSign={false}
+                />
+              </View>
+              <View style={{ flexDirection: 'row', alignItems: 'baseline', gap: 6 }}>
+                <Typography variant='subheading' color='positiveMuted' weight='medium'>
+                  You are owed:
+                </Typography>
+                <Amount
+                  value={owedToYou}
+                  variant='detailLg'
+                  type='positiveMuted'
+                  showSign={false}
+                />
+              </View>
+            </View>
+          )}
         </Card>
       </View>
 
@@ -81,18 +147,27 @@ export default function GroupsScreen() {
               showsHorizontalScrollIndicator={false}
               contentContainerStyle={{
                 paddingHorizontal: theme.spacing.sm,
-                gap: theme.spacing.lg,
+                gap: theme.spacing.md,
               }}
             >
               {groups.map(group => (
-                <GroupAvatar
+                <Card
                   key={group.id}
-                  name={group.name}
-                  memberCount={group.memberCount}
-                  status='active'
-                  size='lg'
-                  onPress={() => router.push(`/(app)/groups/${group.id}`)}
-                />
+                  variant='elevated'
+                  padding='md'
+                  style={{
+                    minWidth: 120,
+                    alignItems: 'center',
+                  }}
+                >
+                  <GroupAvatar
+                    name={group.name}
+                    memberCount={group.memberCount}
+                    status='active'
+                    size='lg'
+                    onPress={() => router.push(`/(app)/groups/${group.id}`)}
+                  />
+                </Card>
               ))}
             </ScrollView>
           </Section>

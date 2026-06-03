@@ -1,10 +1,17 @@
 import React from 'react';
-import { ViewStyle, View } from 'react-native';
+import { ViewStyle, View, TextStyle, Platform } from 'react-native';
 import { useTheme } from '../../theme/ThemeProvider';
 import { Typography } from './Typography';
 
-type AmountVariant = 'default' | 'large' | 'small' | 'display';
-type AmountType = 'positive' | 'negative' | 'neutral';
+type AmountVariant =
+  | 'default'
+  | 'large'
+  | 'small'
+  | 'display'
+  | 'hero'
+  | 'detail'
+  | 'detailLg';
+type AmountType = 'positive' | 'negative' | 'neutral' | 'positiveMuted' | 'negativeMuted';
 
 interface AmountProps {
   value: number; // Amount in cents
@@ -13,6 +20,8 @@ interface AmountProps {
   type?: AmountType;
   showSign?: boolean;
   showCurrency?: boolean;
+  /** Soft outer glow on hero amounts (Net Flow). */
+  glow?: boolean;
   style?: ViewStyle;
 }
 
@@ -23,6 +32,7 @@ export const Amount: React.FC<AmountProps> = ({
   type,
   showSign = true,
   showCurrency = true,
+  glow = false,
   style,
 }) => {
   const theme = useTheme();
@@ -37,27 +47,51 @@ export const Amount: React.FC<AmountProps> = ({
   const finalType =
     type || (isPositive ? 'positive' : isNegative ? 'negative' : 'neutral');
 
-  const getVariantStyle = () => {
+  const getVariantStyle = (): TextStyle => {
     switch (variant) {
       case 'small':
         return {
           fontSize: theme.fontSize.sm,
+          lineHeight: theme.fontSize.sm * 1.4,
           fontWeight: theme.fontWeight.medium,
         };
       case 'default':
         return {
           fontSize: theme.fontSize.base,
+          lineHeight: theme.fontSize.base * 1.4,
           fontWeight: theme.fontWeight.semibold,
         };
       case 'large':
         return {
           fontSize: theme.fontSize.lg,
+          lineHeight: theme.fontSize.lg * 1.35,
           fontWeight: theme.fontWeight.semibold,
         };
       case 'display':
         return {
           fontSize: theme.fontSize['2xl'],
+          lineHeight: theme.fontSize['2xl'] * 1.25,
           fontWeight: theme.fontWeight.bold,
+        };
+      case 'hero':
+        return {
+          fontSize: theme.fontSize['6xl'],
+          lineHeight: theme.fontSize['6xl'] * 1.2,
+          fontWeight: theme.fontWeight.bold,
+          letterSpacing: -0.5,
+          ...(Platform.OS === 'android' ? { includeFontPadding: false } : null),
+        };
+      case 'detail':
+        return {
+          fontSize: theme.fontSize.md,
+          lineHeight: theme.fontSize.md * 1.4,
+          fontWeight: theme.fontWeight.semibold,
+        };
+      case 'detailLg':
+        return {
+          fontSize: theme.fontSize.lg,
+          lineHeight: theme.fontSize.lg * 1.35,
+          fontWeight: theme.fontWeight.semibold,
         };
     }
   };
@@ -66,11 +100,25 @@ export const Amount: React.FC<AmountProps> = ({
     switch (finalType) {
       case 'positive':
         return theme.colors.financialPositive;
+      case 'positiveMuted':
+        return theme.colors.financialPositiveMuted;
       case 'negative':
         return theme.colors.financialNegative;
+      case 'negativeMuted':
+        return theme.colors.financialNegativeMuted;
       case 'neutral':
         return theme.colors.text.primary;
     }
+  };
+
+  const getGlowStyle = (): TextStyle => {
+    if (!glow || variant !== 'hero') return {};
+    const color = getColor();
+    return {
+      textShadowColor: color,
+      textShadowOffset: { width: 0, height: 0 },
+      textShadowRadius: 14,
+    };
   };
 
   const formatAmount = (): string => {
@@ -108,13 +156,22 @@ export const Amount: React.FC<AmountProps> = ({
     return symbols[currencyCode] || currencyCode;
   };
 
+  const textStyle = getVariantStyle();
+
   return (
-    <View style={style}>
+    <View
+      style={[
+        style,
+        variant === 'hero' && { overflow: 'visible' },
+      ]}
+    >
       <Typography
         variant='body'
+        weight='normal'
         style={{
-          ...getVariantStyle(),
+          ...textStyle,
           color: getColor(),
+          ...getGlowStyle(),
         }}
       >
         {formatAmount()}

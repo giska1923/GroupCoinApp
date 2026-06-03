@@ -19,28 +19,30 @@ export const colors = {
     950: '#1e1b4b',
   },
 
-  // Financial colors from screenshot
-  financialPositive: '#10b981', // Bright green for money owed to you
-  financialNegative: '#ef4444', // Red for money you owe
+  // Financial colors (Equinox Flow — neon hero + muted breakdown)
+  financialPositive: '#3dff8a', // Hero net-flow green
+  financialPositiveMuted: '#5dba82', // "You are owed" line
+  financialNegative: '#ff5c6c', // Hero negative balance
+  financialNegativeMuted: '#c96b73', // "You owe" line
   financialWarning: '#f59e0b', // Amber for pending
 
-  // Dark theme surfaces
+  // Dark theme surfaces (Equinox Flow — muted charcoal, not pure black)
   surface: {
-    primary: '#0f0f23', // Main background (very dark blue)
-    secondary: '#1a1a2e', // Card backgrounds
-    tertiary: '#16213e', // Elevated surfaces
-    border: '#252545', // Borders and dividers
-    tabBar: 'rgba(10, 10, 20, 0.82)', // Floating tab bar (near-black, translucent)
-    tabBarBorder: 'rgba(255, 255, 255, 0.07)', // Hairline along the tab bar's top edge
+    primary: '#121217', // Main background
+    secondary: '#22222b', // Card backgrounds
+    tertiary: '#2a2a34', // Elevated surfaces
+    border: 'rgba(255, 255, 255, 0.08)', // Subtle dividers
+    tabBar: 'rgba(18, 18, 23, 0.88)', // Floating tab bar
+    tabBarBorder: 'rgba(255, 255, 255, 0.06)', // Hairline along the tab bar's top edge
   },
 
   // Text colors for dark theme
   text: {
     primary: '#ffffff', // Primary white text
     secondary: '#a1a1aa', // Secondary gray text
-    muted: '#6b7280', // Muted gray text
+    muted: '#71717a', // Muted gray text
     inverse: '#0f172a', // Dark text (for light surfaces)
-    accent: '#8b5cf6', // Accent purple text
+    accent: '#8a89ff', // Brand lavender (app title, links)
   },
 
   // Status colors with dark theme variants
@@ -104,6 +106,7 @@ export const fontSize = {
   '3xl': 28, // Large headings
   '4xl': 32, // Hero text
   '5xl': 36, // Display text
+  '6xl': 42, // Net flow balance
 } as const;
 
 export const lineHeight = {
@@ -123,28 +126,28 @@ export const fontWeight = {
   extrabold: '800',
 } as const;
 
-// Shadows for depth (dark theme)
+// Soft shadows for elevated cards (no heavy borders)
 export const shadow = {
   sm: {
     shadowColor: '#000000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.3,
-    shadowRadius: 2,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.12,
+    shadowRadius: 4,
     elevation: 2,
   },
   md: {
     shadowColor: '#000000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 4,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.14,
+    shadowRadius: 10,
     elevation: 4,
   },
   lg: {
     shadowColor: '#000000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 8,
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.18,
+    shadowRadius: 14,
+    elevation: 6,
   },
 } as const;
 
@@ -177,7 +180,7 @@ export const zIndex = {
 export const components = {
   card: {
     padding: spacing.lg,
-    radius: radius.lg,
+    radius: radius['2xl'],
     shadow: shadow.md,
   },
   button: {

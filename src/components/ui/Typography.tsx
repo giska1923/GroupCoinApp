@@ -17,7 +17,9 @@ type TypographyColor =
   | 'muted'
   | 'accent'
   | 'positive'
+  | 'positiveMuted'
   | 'negative'
+  | 'negativeMuted'
   | 'warning';
 
 interface TypographyProps extends Omit<TextProps, 'style'> {
@@ -98,8 +100,12 @@ export const Typography: React.FC<TypographyProps> = ({
         return { color: theme.colors.text.accent };
       case 'positive':
         return { color: theme.colors.financialPositive };
+      case 'positiveMuted':
+        return { color: theme.colors.financialPositiveMuted };
       case 'negative':
         return { color: theme.colors.financialNegative };
+      case 'negativeMuted':
+        return { color: theme.colors.financialNegativeMuted };
       case 'warning':
         return { color: theme.colors.financialWarning };
       default:

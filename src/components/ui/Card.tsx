@@ -22,7 +22,7 @@ export const Card: React.FC<CardProps> = ({
 
   const getVariantStyle = (): ViewStyle => {
     const baseStyle: ViewStyle = {
-      borderRadius: theme.radius.lg,
+      borderRadius: theme.components.card.radius,
     };
 
     switch (variant) {
@@ -37,7 +37,7 @@ export const Card: React.FC<CardProps> = ({
         return {
           ...baseStyle,
           backgroundColor: theme.colors.surface.secondary,
-          ...theme.shadow.md,
+          ...theme.components.card.shadow,
         };
       case 'outlined':
         return {
