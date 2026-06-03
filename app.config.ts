@@ -61,6 +61,6 @@ function getApiUrl(env: string): string {
     case 'staging':
       return 'https://staging-api.groupcoin.com';
     default:
-      return 'http://10.0.2.2:3000';
+      return 'http://localhost:3000';
   }
 }

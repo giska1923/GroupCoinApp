@@ -29,10 +29,13 @@ export const mapAxiosError = (err: unknown): ClientError => {
     // No response → network/timeout failure.
     if (!err.response) {
       const isTimeout = err.code === 'ECONNABORTED';
+      const baseMessage = isTimeout
+        ? 'The request timed out. Please try again.'
+        : 'Could not reach the server. Check your connection.';
+      const detail =
+        __DEV__ && err.code ? ` (${err.code})` : '';
       return new ClientError(
-        isTimeout
-          ? 'The request timed out. Please try again.'
-          : 'Could not reach the server. Check your connection.',
+        baseMessage + detail,
         0,
         isTimeout ? 'TIMEOUT' : 'NETWORK_ERROR',
       );
