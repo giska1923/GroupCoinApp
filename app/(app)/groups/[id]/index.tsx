@@ -5,23 +5,24 @@ import { Settings, Receipt } from 'lucide-react-native';
 import { useTheme } from '../../../../src/theme/ThemeProvider';
 import { Screen } from '../../../../src/components/layout/Screen';
 import { Header } from '../../../../src/components/layout/Header';
-import { Column, Row } from '../../../../src/components/layout/Row';
-import { Typography, Card, Button, Amount } from '../../../../src/components/ui';
+import { Column } from '../../../../src/components/layout/Row';
 import { QueryView } from '../../../../src/components/feedback';
 import { GroupSettingsSheet } from '../../../../src/components/groups/GroupSettingsSheet';
+import { GroupBalanceSummary } from '../../../../src/components/groups/GroupBalanceSummary';
+import { SettleUpList } from '../../../../src/components/groups/SettleUpList';
+import { ExpenseRow } from '../../../../src/components/groups/ExpenseRow';
+import { Sheet } from '../../../../src/components/ui';
 import {
   useGroup,
   useGroupExpenses,
   useGroupMembers,
-  useBalances,
   useDeleteGroup,
   useLeaveGroup,
 } from '../../../../src/hooks';
 import { useAuthStore } from '../../../../src/stores/auth.store';
-import { expenseUserNet } from '../../../../src/utils/expense';
-import { formatShortDate } from '../../../../src/utils/format';
 import { ClientError } from '../../../../src/api/errors';
 import { canManageGroup } from '../../../../src/utils/groupPermissions';
+import { DEFAULT_CURRENCY } from '../../../../src/config/currency';
 import type { ExpenseDTO } from '../../../../src/types/api';
 
 export default function GroupDetailScreen() {
@@ -33,15 +34,13 @@ export default function GroupDetailScreen() {
   const group = useGroup(groupId);
   const members = useGroupMembers(groupId);
   const expenses = useGroupExpenses(groupId);
-  const balances = useBalances(groupId);
   const deleteGroup = useDeleteGroup(groupId);
   const leaveGroup = useLeaveGroup(groupId);
 
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const [settleUpOpen, setSettleUpOpen] = useState(false);
 
-  const currency = group.data?.currency ?? 'USD';
-  const myBalance =
-    balances.data?.find(b => b.userId === userId)?.netBalance ?? 0;
+  const currency = DEFAULT_CURRENCY;
   const myMembership = members.data?.find(
     m => String(m.userId) === String(userId),
   );
@@ -102,7 +101,7 @@ export default function GroupDetailScreen() {
           text: 'Leave',
           style: 'destructive',
           onPress: () =>
-            leaveGroup.mutate(myMembership.id, {
+            leaveGroup.mutate(myMembership.userId, {
               onSuccess: goToGroups,
               onError: error =>
                 showActionError(error, 'Could not leave the group.'),
@@ -119,7 +118,6 @@ export default function GroupDetailScreen() {
       refreshing={expenses.isRefetching}
       onRefresh={() => {
         expenses.refetch();
-        balances.refetch();
         group.refetch();
         members.refetch();
       }}
@@ -153,26 +151,12 @@ export default function GroupDetailScreen() {
           paddingBottom: theme.spacing.lg,
         }}
       >
-        {/* Group balance summary */}
-        <Card variant='elevated' padding='lg' style={{ alignItems: 'center' }}>
-          <Typography variant='caption' color='secondary'>
-            {myBalance >= 0 ? 'Overall, you are owed' : 'Overall, you owe'}
-          </Typography>
-          <Amount
-            value={myBalance}
-            currency={currency}
-            variant='display'
-            showSign={false}
-          />
-          <Row justify='center' gap='md' style={{ marginTop: theme.spacing.md }}>
-            <Button variant='primary' size='md' rounded onPress={() => {}}>
-              Settle Up
-            </Button>
-            <Button variant='primary' size='md' rounded onPress={goToAddExpense}>
-              Add expense
-            </Button>
-          </Row>
-        </Card>
+        <GroupBalanceSummary
+          groupId={groupId}
+          currency={currency}
+          onSettleUp={() => setSettleUpOpen(true)}
+          onAddExpense={goToAddExpense}
+        />
 
         <QueryView
           query={expenses}
@@ -183,82 +167,27 @@ export default function GroupDetailScreen() {
         >
           {(list: ExpenseDTO[]) => (
             <Column gap='md'>
-              {list.map(expense => {
-                const net = expenseUserNet(expense, userId);
-                const positive = net > 0;
-                const involved = net !== 0;
-                return (
-                  <Card
-                    key={expense.id}
-                    variant='default'
-                    padding='none'
-                    style={{ overflow: 'hidden' }}
-                  >
-                    <View style={{ flexDirection: 'row', alignItems: 'stretch' }}>
-                      <Column
-                        gap='xs'
-                        style={{ flex: 1, padding: theme.spacing.lg }}
-                      >
-                        <Typography variant='body' weight='semibold'>
-                          {expense.description}
-                        </Typography>
-                        <Typography variant='caption' color='secondary'>
-                          {expense.paidByUser?.name ?? 'Someone'} paid{' '}
-                          {symbol(currency)}
-                          {(expense.amount / 100).toFixed(2)}
-                        </Typography>
-                        <Typography variant='label' color='muted'>
-                          {formatShortDate(expense.expenseDate)}
-                        </Typography>
-                      </Column>
-
-                      <Column
-                        justify='center'
-                        align='center'
-                        gap='xs'
-                        style={{
-                          width: 132,
-                          paddingHorizontal: theme.spacing.md,
-                          backgroundColor: !involved
-                            ? theme.colors.surface.tertiary
-                            : positive
-                              ? theme.colors.success.bg
-                              : theme.colors.error.bg,
-                        }}
-                      >
-                        <Typography
-                          variant='label'
-                          weight='semibold'
-                          style={{
-                            color: !involved
-                              ? theme.colors.text.muted
-                              : positive
-                                ? theme.colors.financialPositive
-                                : theme.colors.financialNegative,
-                          }}
-                        >
-                          {!involved
-                            ? 'Not involved'
-                            : positive
-                              ? 'Owes You'
-                              : 'You Owe'}
-                        </Typography>
-                        {involved && (
-                          <Amount
-                            value={net}
-                            currency={currency}
-                            variant='large'
-                          />
-                        )}
-                      </Column>
-                    </View>
-                  </Card>
-                );
-              })}
+              {list.map(expense => (
+                <ExpenseRow
+                  key={expense.id}
+                  expense={expense}
+                  currency={currency}
+                  members={members.data}
+                />
+              ))}
             </Column>
           )}
         </QueryView>
       </Column>
+
+      <Sheet
+        visible={settleUpOpen}
+        onClose={() => setSettleUpOpen(false)}
+        title='Settle up'
+        showClose
+      >
+        <SettleUpList groupId={groupId} />
+      </Sheet>
 
       <GroupSettingsSheet
         visible={settingsOpen}
@@ -278,6 +207,3 @@ export default function GroupDetailScreen() {
     </Screen>
   );
 }
-
-const symbol = (code: string): string =>
-  ({ USD: '$', EUR: '€', GBP: '£', JPY: '¥' })[code] ?? `${code} `;

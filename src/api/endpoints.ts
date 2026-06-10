@@ -22,8 +22,8 @@ export const endpoints = {
     remove: (id: string) => `/groups/${id}`,
     members: (id: string) => `/groups/${id}/members`,
     addMember: (id: string) => `/groups/${id}/members`,
-    removeMember: (groupId: string, memberId: string) =>
-      `/groups/${groupId}/members/${memberId}`,
+    removeMember: (groupId: string, userId: string) =>
+      `/groups/${groupId}/members/${userId}`,
     balances: (id: string) => `/groups/${id}/balances`,
     simplified: (id: string) => `/groups/${id}/balances/simplified`,
     expenses: (id: string) => `/groups/${id}/expenses`,

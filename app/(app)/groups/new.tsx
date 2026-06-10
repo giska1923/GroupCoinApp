@@ -3,19 +3,17 @@ import { router } from 'expo-router';
 import { useTheme } from '../../../src/theme/ThemeProvider';
 import { Screen } from '../../../src/components/layout/Screen';
 import { Header } from '../../../src/components/layout/Header';
-import { Row, Column } from '../../../src/components/layout/Row';
-import { Typography, TextField, Button, Chip } from '../../../src/components/ui';
+import { Column } from '../../../src/components/layout/Row';
+import { Typography, TextField, Button } from '../../../src/components/ui';
 import { MemberInviteSection } from '../../../src/components/groups/MemberInviteSection';
 import { useCreateGroup } from '../../../src/hooks';
 import { ClientError } from '../../../src/api/errors';
-
-const CURRENCIES = ['USD', 'EUR', 'GBP', 'JPY'];
+import { DEFAULT_CURRENCY } from '../../../src/config/currency';
 
 export default function NewGroupScreen() {
   const theme = useTheme();
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
-  const [currency, setCurrency] = useState('USD');
   const [pendingEmails, setPendingEmails] = useState<string[]>([]);
   const [saving, setSaving] = useState(false);
   const createGroup = useCreateGroup();
@@ -33,7 +31,7 @@ export default function NewGroupScreen() {
       await createGroup.mutateAsync({
         name: name.trim(),
         description: description.trim() || undefined,
-        currency,
+        currency: DEFAULT_CURRENCY,
         inviteEmails: pendingEmails.length > 0 ? pendingEmails : undefined,
       });
 
@@ -88,23 +86,6 @@ export default function NewGroupScreen() {
           onChangeText={setDescription}
           multiline
         />
-
-        <Column gap='md'>
-          <Typography variant='caption' color='secondary' weight='medium'>
-            Default currency
-          </Typography>
-          <Row gap='sm' wrap>
-            {CURRENCIES.map(code => (
-              <Chip
-                key={code}
-                label={code}
-                selected={currency === code}
-                showCheckWhenSelected={false}
-                onPress={() => setCurrency(code)}
-              />
-            ))}
-          </Row>
-        </Column>
 
         <MemberInviteSection
           pendingEmails={pendingEmails}

@@ -20,6 +20,8 @@ import {
 } from '../../../../src/hooks';
 import { useAuthStore } from '../../../../src/stores/auth.store';
 import { ClientError } from '../../../../src/api/errors';
+import { DEFAULT_CURRENCY } from '../../../../src/config/currency';
+import { splitEqually, formatMoneyLabel, currencySymbol } from '../../../../src/utils/money';
 
 type SplitMode = 'EQUAL';
 
@@ -42,7 +44,7 @@ export default function AddExpenseScreen() {
   const [selected, setSelected] = useState<string[]>([]);
   const [splitMode, setSplitMode] = useState<SplitMode>('EQUAL');
 
-  const currency = group.data?.currency ?? 'USD';
+  const currency = DEFAULT_CURRENCY;
 
   // Default to splitting between everyone once members load.
   useEffect(() => {
@@ -57,9 +59,9 @@ export default function AddExpenseScreen() {
     );
 
   const perPerson = useMemo(() => {
-    const cents = Math.round((parseFloat(amount) || 0) * 100);
-    if (!selected.length) return 0;
-    return Math.floor(cents / selected.length);
+    const normalized = (parseFloat(amount) || 0).toFixed(2);
+    if (!selected.length) return '0.00';
+    return splitEqually(normalized, selected.length)[0] ?? '0.00';
   }, [amount, selected.length]);
 
   const close = () => {
@@ -117,7 +119,7 @@ export default function AddExpenseScreen() {
       <Column align='center' gap='sm' style={{ paddingVertical: theme.spacing['2xl'] }}>
         <Row gap='xs' align='center'>
           <Typography variant='display' color='muted'>
-            {symbol(currency)}
+            {currencySymbol(currency)}
           </Typography>
           <TextInput
             value={amount}
@@ -197,8 +199,7 @@ export default function AddExpenseScreen() {
             <Typography variant='caption' color='secondary'>
               Each pays{' '}
               <Typography variant='caption' weight='semibold' color='accent'>
-                {symbol(currency)}
-                {(perPerson / 100).toFixed(2)}
+                {formatMoneyLabel(perPerson, currency)}
               </Typography>
             </Typography>
           </View>
@@ -225,5 +226,3 @@ export default function AddExpenseScreen() {
   );
 }
 
-const symbol = (code: string): string =>
-  ({ USD: '$', EUR: '€', GBP: '£', JPY: '¥' })[code] ?? `${code} `;

@@ -3,6 +3,9 @@ import { ViewStyle, View, TextStyle, Platform } from 'react-native';
 import { useTheme } from '../../theme/ThemeProvider';
 import { Typography } from './Typography';
 
+import { moneyToCents, centsToMoney, normalizeAmount, currencySymbol as symbolFor } from '../../utils/money';
+import { DEFAULT_CURRENCY, resolveCurrency } from '../../config/currency';
+
 type AmountVariant =
   | 'default'
   | 'large'
@@ -14,7 +17,8 @@ type AmountVariant =
 type AmountType = 'positive' | 'negative' | 'neutral' | 'positiveMuted' | 'negativeMuted';
 
 interface AmountProps {
-  value: number; // Amount in cents
+  /** Decimal string (e.g. "45.00") or legacy cents number. */
+  value: string | number;
   currency?: string;
   variant?: AmountVariant;
   type?: AmountType;
@@ -27,7 +31,7 @@ interface AmountProps {
 
 export const Amount: React.FC<AmountProps> = ({
   value,
-  currency = 'USD',
+  currency = DEFAULT_CURRENCY,
   variant = 'default',
   type,
   showSign = true,
@@ -37,11 +41,14 @@ export const Amount: React.FC<AmountProps> = ({
 }) => {
   const theme = useTheme();
 
-  // Convert cents to dollars
-  const dollars = Math.abs(value) / 100;
-  const isPositive = value > 0;
-  const isNegative = value < 0;
-  const isZero = value === 0;
+  const cents = typeof value === 'number'
+    ? BigInt(value)
+    : moneyToCents(normalizeAmount(value));
+  const isPositive = cents > 0n;
+  const isNegative = cents < 0n;
+  const isZero = cents === 0n;
+  const displayAmount = centsToMoney(cents < 0n ? -cents : cents);
+  const [wholePart, fracPart] = displayAmount.split('.');
 
   // Auto-determine type if not provided
   const finalType =
@@ -131,29 +138,13 @@ export const Amount: React.FC<AmountProps> = ({
 
     // Add currency symbol
     if (showCurrency) {
-      const currencySymbol = getCurrencySymbol(currency);
-      formatted += currencySymbol;
+      formatted += symbolFor(resolveCurrency(currency));
     }
 
     // Add amount with proper formatting
-    formatted += dollars.toLocaleString('en-US', {
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
-    });
+    formatted += `${Number(wholePart).toLocaleString('en-US')}.${fracPart}`;
 
     return formatted;
-  };
-
-  const getCurrencySymbol = (currencyCode: string): string => {
-    const symbols: Record<string, string> = {
-      USD: '$',
-      EUR: '€',
-      GBP: '£',
-      JPY: '¥',
-      CAD: 'CA$',
-      AUD: 'AU$',
-    };
-    return symbols[currencyCode] || currencyCode;
   };
 
   const textStyle = getVariantStyle();

@@ -3,8 +3,8 @@ import { router, useLocalSearchParams } from 'expo-router';
 import { useTheme } from '../../../../src/theme/ThemeProvider';
 import { Screen } from '../../../../src/components/layout/Screen';
 import { Header } from '../../../../src/components/layout/Header';
-import { Row, Column } from '../../../../src/components/layout/Row';
-import { Typography, TextField, Button, Chip } from '../../../../src/components/ui';
+import { Column } from '../../../../src/components/layout/Row';
+import { Typography, TextField, Button } from '../../../../src/components/ui';
 import { Spinner, ErrorState } from '../../../../src/components/feedback';
 import { MemberInviteSection } from '../../../../src/components/groups/MemberInviteSection';
 import {
@@ -14,8 +14,7 @@ import {
   useInviteMember,
 } from '../../../../src/hooks';
 import { ClientError } from '../../../../src/api/errors';
-
-const CURRENCIES = ['USD', 'EUR', 'GBP', 'JPY'];
+import { DEFAULT_CURRENCY } from '../../../../src/config/currency';
 
 export default function EditGroupScreen() {
   const theme = useTheme();
@@ -29,7 +28,6 @@ export default function EditGroupScreen() {
 
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
-  const [currency, setCurrency] = useState('USD');
   const [pendingEmails, setPendingEmails] = useState<string[]>([]);
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState<string>();
@@ -38,7 +36,6 @@ export default function EditGroupScreen() {
     if (!group.data) return;
     setName(group.data.name ?? '');
     setDescription(group.data.description ?? '');
-    setCurrency(group.data.currency ?? 'USD');
   }, [group.data]);
 
   const canSave =
@@ -59,7 +56,7 @@ export default function EditGroupScreen() {
       await updateGroup.mutateAsync({
         name: (name ?? '').trim(),
         description: (description ?? '').trim() || undefined,
-        currency,
+        currency: DEFAULT_CURRENCY,
       });
 
       for (const email of pendingEmails) {
@@ -131,23 +128,6 @@ export default function EditGroupScreen() {
           onChangeText={setDescription}
           multiline
         />
-
-        <Column gap='md'>
-          <Typography variant='caption' color='secondary' weight='medium'>
-            Default currency
-          </Typography>
-          <Row gap='sm' wrap>
-            {CURRENCIES.map(code => (
-              <Chip
-                key={code}
-                label={code}
-                selected={currency === code}
-                showCheckWhenSelected={false}
-                onPress={() => setCurrency(code)}
-              />
-            ))}
-          </Row>
-        </Column>
 
         <MemberInviteSection
           existingMembers={members.data}

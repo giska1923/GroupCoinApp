@@ -68,7 +68,7 @@ export interface GroupDetailDTO {
 export interface ExpenseDTO {
   id: string;
   description: string;
-  amount: number; // in cents
+  amount: string;
   currency: string;
   paidBy: string;
   groupId: string;
@@ -76,36 +76,43 @@ export interface ExpenseDTO {
   splitType: 'EQUAL' | 'EXACT' | 'PERCENTAGE';
   createdAt: string;
   updatedAt: string;
-  paidByUser: UserDTO;
-  splits: ExpenseSplitDTO[];
+  paidByUser?: UserDTO;
 }
 
-export interface ExpenseDetailDTO extends ExpenseDTO {
-  group: GroupDTO;
+export interface ExpenseDetailDTO {
+  expense: ExpenseDTO;
+  splits: ExpenseSplitDTO[];
+  group?: GroupDTO;
 }
 
 export interface ExpenseSplitDTO {
   id: string;
   expenseId: string;
   userId: string;
-  amount: number; // in cents
-  splitType: 'EQUAL' | 'EXACT' | 'PERCENTAGE';
-  splitValue: number;
-  user: UserDTO;
+  owedAmount: string;
+  user?: UserDTO;
 }
 
-export interface BalanceDTO {
-  userId: string;
-  netBalance: number; // in cents - positive means owed money
-  user: UserDTO;
+export interface CurrencyBalanceDTO {
+  currency: string;
+  /** Positive = group owes user; negative = user owes group. */
+  amount: string;
 }
+
+export interface UserBalanceDTO {
+  userId: string;
+  user?: UserDTO;
+  balances: CurrencyBalanceDTO[];
+}
+
+/** @deprecated Use UserBalanceDTO */
+export type BalanceDTO = UserBalanceDTO;
 
 export interface SimplifiedTransferDTO {
   fromUserId: string;
   toUserId: string;
-  amount: number; // in cents
-  fromUser: UserDTO;
-  toUser: UserDTO;
+  amount: string;
+  currency: string;
 }
 
 export interface SettlementDTO {
@@ -113,7 +120,7 @@ export interface SettlementDTO {
   groupId: string;
   fromUserId: string;
   toUserId: string;
-  amount: number; // in cents
+  amount: string;
   currency: string;
   note: string | null;
   settledAt: string;

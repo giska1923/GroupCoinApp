@@ -5,8 +5,10 @@ import { queryKeys } from '../api/queryClient';
 import { useAuthStore } from '../stores/auth.store';
 import { useGroups } from './useGroups';
 import type { ActivityDTO, ExpenseDTO } from '../types/api';
+import { addAmounts, isNegativeAmount, isPositiveAmount, myBalanceAmounts, negateAmount, ZERO } from '../utils/money';
+import { DEFAULT_CURRENCY } from '../config/currency';
 
-/** Overall net balance across all groups for the signed-in user. */
+/** Overall net balance across all groups for the signed-in user (per primary group currency). */
 export const useOverview = () => {
   const groupsQuery = useGroups();
   const userId = useAuthStore(s => s.user?.id);
@@ -21,36 +23,49 @@ export const useOverview = () => {
     })),
   });
 
-  const netFlowCents = useMemo(() => {
-    if (!userId) return 0;
-    return balanceQueries.reduce((sum, q) => {
-      const mine = q.data?.find(b => b.userId === userId);
-      return sum + (mine?.netBalance ?? 0);
-    }, 0);
-  }, [balanceQueries, userId]);
+  const balanceForGroup = (index: number): string => {
+    const group = groups[index];
+    if (!group) return ZERO;
+    const amounts = myBalanceAmounts(
+      balanceQueries[index]?.data ?? [],
+      userId,
+      DEFAULT_CURRENCY,
+    );
+    const primary =
+      amounts.find(a => a.currency === DEFAULT_CURRENCY) ?? amounts[0];
+    return primary?.amount ?? ZERO;
+  };
+
+  const netFlow = useMemo(() => {
+    if (!userId) return ZERO;
+    return balanceQueries.reduce(
+      (sum, _q, index) => addAmounts(sum, balanceForGroup(index)),
+      ZERO,
+    );
+  }, [balanceQueries, groups, userId]);
 
   const owedToYou = useMemo(() => {
-    if (!userId) return 0;
-    return balanceQueries.reduce((sum, q) => {
-      const mine = q.data?.find(b => b.userId === userId);
-      const v = mine?.netBalance ?? 0;
-      return sum + (v > 0 ? v : 0);
-    }, 0);
-  }, [balanceQueries, userId]);
+    if (!userId) return ZERO;
+    return balanceQueries.reduce((sum, _q, index) => {
+      const amount = balanceForGroup(index);
+      return isPositiveAmount(amount) ? addAmounts(sum, amount) : sum;
+    }, ZERO);
+  }, [balanceQueries, groups, userId]);
 
   const youOwe = useMemo(() => {
-    if (!userId) return 0;
-    return balanceQueries.reduce((sum, q) => {
-      const mine = q.data?.find(b => b.userId === userId);
-      const v = mine?.netBalance ?? 0;
-      return sum + (v < 0 ? -v : 0);
-    }, 0);
-  }, [balanceQueries, userId]);
+    if (!userId) return ZERO;
+    return balanceQueries.reduce((sum, _q, index) => {
+      const amount = balanceForGroup(index);
+      return isNegativeAmount(amount) ? addAmounts(sum, negateAmount(amount)) : sum;
+    }, ZERO);
+  }, [balanceQueries, groups, userId]);
 
   return {
     groupsQuery,
     groups,
-    netFlowCents,
+    netFlow,
+    /** @deprecated Use netFlow (decimal string). Kept for Amount backwards compat. */
+    netFlowCents: netFlow,
     owedToYou,
     youOwe,
     isLoadingBalances: balanceQueries.some(q => q.isLoading),

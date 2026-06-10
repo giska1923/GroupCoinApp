@@ -20,13 +20,14 @@ import {
 } from '../../../src/components/feedback';
 import { InvitationBell } from '../../../src/components/groups/InvitationsInbox';
 import { useOverview, useInvitations } from '../../../src/hooks';
+import { isNegativeAmount, isPositiveAmount, isZeroAmount } from '../../../src/utils/money';
 
 export default function GroupsScreen() {
   const theme = useTheme();
   const {
     groups,
     groupsQuery,
-    netFlowCents,
+    netFlow,
     owedToYou,
     youOwe,
     isLoadingBalances,
@@ -34,8 +35,11 @@ export default function GroupsScreen() {
   const invitations = useInvitations();
   const invitationCount = invitations.data?.length ?? 0;
 
-  const netFlowType =
-    netFlowCents > 0 ? 'positive' : netFlowCents < 0 ? 'negative' : 'neutral';
+  const netFlowType = isPositiveAmount(netFlow)
+    ? 'positive'
+    : isNegativeAmount(netFlow)
+      ? 'negative'
+      : 'neutral';
 
   return (
     <Screen
@@ -77,11 +81,11 @@ export default function GroupsScreen() {
             <Spinner size='small' />
           ) : (
             <Amount
-              value={netFlowCents}
+              value={netFlow}
               variant='hero'
               type={netFlowType}
               showSign
-              glow={netFlowCents !== 0}
+              glow={!isZeroAmount(netFlow)}
             />
           )}
           {!isLoadingBalances && (
@@ -198,7 +202,7 @@ export default function GroupsScreen() {
                         : null,
                     ]
                       .filter(Boolean)
-                      .join(' · ') || group.currency
+                      .join(' · ') || undefined
                   }
                   leading={
                     <Typography variant='body' weight='semibold' color='accent'>

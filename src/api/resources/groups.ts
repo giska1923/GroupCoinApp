@@ -1,6 +1,7 @@
 import { apiClient } from '../client';
 import { endpoints } from '../endpoints';
 import { getGroupOwnerId } from '../../utils/groupPermissions';
+import { DEFAULT_CURRENCY, resolveCurrency } from '../../config/currency';
 import type {
   CreateGroupPayload,
   GroupDTO,
@@ -30,7 +31,7 @@ function normalizeGroup(raw: RawGroup): GroupDTO {
     id: raw.id ?? '',
     name: raw.name ?? '',
     description: raw.description ?? null,
-    currency: raw.currency ?? raw.defaultCurrency ?? 'USD',
+    currency: resolveCurrency(raw.currency ?? raw.defaultCurrency),
     ownerId: ownerId ?? raw.ownerId ?? '',
   };
 }
@@ -135,8 +136,8 @@ export const groupsApi = {
       })
       .then(r => r.data),
 
-  removeMember: (groupId: string, memberId: string) =>
+  removeMember: (groupId: string, userId: string) =>
     apiClient
-      .delete<void>(endpoints.groups.removeMember(groupId, memberId))
+      .delete<void>(endpoints.groups.removeMember(groupId, userId))
       .then(() => undefined),
 };

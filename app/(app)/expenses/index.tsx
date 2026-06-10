@@ -6,20 +6,18 @@ import { useTheme } from '../../../src/theme/ThemeProvider';
 import { Screen } from '../../../src/components/layout/Screen';
 import { Header } from '../../../src/components/layout/Header';
 import { Section } from '../../../src/components/layout/Section';
-import { Row } from '../../../src/components/layout/Row';
-import { Typography, Card, Amount, ListItem } from '../../../src/components/ui';
+import { Row, Column } from '../../../src/components/layout/Row';
+import { Typography, Card, Amount } from '../../../src/components/ui';
 import {
   Spinner,
   EmptyState,
   ErrorState,
 } from '../../../src/components/feedback';
+import { ExpenseRow } from '../../../src/components/groups/ExpenseRow';
 import { useAllExpenses, useOverview } from '../../../src/hooks';
-import { useAuthStore } from '../../../src/stores/auth.store';
-import { expenseUserNet } from '../../../src/utils/expense';
 
 export default function ExpensesScreen() {
   const theme = useTheme();
-  const userId = useAuthStore(s => s.user?.id);
   const { expenses, isLoading, isError, refetch } = useAllExpenses();
   const { owedToYou, youOwe } = useOverview();
 
@@ -40,7 +38,7 @@ export default function ExpensesScreen() {
           <Typography variant='caption' color='secondary'>
             You owe
           </Typography>
-          <Amount value={-youOwe} variant='large' type='negative' showSign={false} />
+          <Amount value={youOwe} variant='large' type='negative' showSign={false} />
         </Card>
       </Row>
 
@@ -63,32 +61,15 @@ export default function ExpensesScreen() {
             icon={<Receipt size={48} color={theme.colors.text.muted} />}
           />
         ) : (
-          <Card variant='default' padding='none'>
-            {expenses.map((expense, index) => {
-              const net = expenseUserNet(expense, userId);
-              return (
-                <ListItem
-                  key={expense.id}
-                  title={expense.description}
-                  subtitle={expense.groupName ?? expense.currency}
-                  leading={<Receipt size={18} color={theme.colors.brand[400]} />}
-                  trailing={
-                    net === 0 ? (
-                      <Typography variant='caption' color='muted'>
-                        —
-                      </Typography>
-                    ) : (
-                      <Amount value={net} currency={expense.currency} variant='default' />
-                    )
-                  }
-                  divider={index < expenses.length - 1}
-                  onPress={() =>
-                    router.push(`/(app)/groups/${expense.groupId}`)
-                  }
-                />
-              );
-            })}
-          </Card>
+          <Column gap='md'>
+            {expenses.map(expense => (
+              <ExpenseRow
+                key={expense.id}
+                expense={expense}
+                onPress={() => router.push(`/(app)/groups/${expense.groupId}`)}
+              />
+            ))}
+          </Column>
         )}
       </Section>
     </Screen>

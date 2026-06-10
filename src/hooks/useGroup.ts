@@ -56,7 +56,7 @@ export const useAddMember = useInviteMember;
 export const useLeaveGroup = (id: string) => {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: (memberId: string) => groupsApi.removeMember(id, memberId),
+    mutationFn: (userId: string) => groupsApi.removeMember(id, userId),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: queryKeys.groups.all });
       qc.removeQueries({ queryKey: queryKeys.groups.detail(id) });
