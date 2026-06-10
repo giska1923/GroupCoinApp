@@ -2,9 +2,7 @@ import React, { useState } from 'react';
 import { View } from 'react-native';
 import { router } from 'expo-router';
 import {
-  CreditCard,
   Bell,
-  Upload,
   Shield,
   Users,
   LogOut,
@@ -21,7 +19,7 @@ import {
   ListItem,
   Switch,
 } from '../../../src/components/ui';
-import { useCurrentUser, useLogout } from '../../../src/hooks';
+import { useCurrentUser, useLogout, useSplitContacts } from '../../../src/hooks';
 import { useAuthStore } from '../../../src/stores/auth.store';
 
 const initialsOf = (name?: string) =>
@@ -40,6 +38,7 @@ export default function AccountScreen() {
   const { data: fetchedUser } = useCurrentUser();
   const user = fetchedUser ?? storedUser;
   const logout = useLogout();
+  const { count: friendCount, isLoading: friendsLoading } = useSplitContacts();
 
   const handleSignOut = async () => {
     await logout();
@@ -75,12 +74,6 @@ export default function AccountScreen() {
         {/* Settings group */}
         <Card variant='default' padding='none'>
           <ListItem
-            title='Payment Methods'
-            leading={<CreditCard size={20} color={theme.colors.brand[400]} />}
-            onPress={() => {}}
-            divider
-          />
-          <ListItem
             title='Group Notifications'
             leading={<Bell size={20} color={theme.colors.brand[400]} />}
             trailing={
@@ -92,12 +85,6 @@ export default function AccountScreen() {
             title='Privacy & Security'
             leading={<Shield size={20} color={theme.colors.brand[400]} />}
             onPress={() => {}}
-            divider
-          />
-          <ListItem
-            title='Export Data'
-            leading={<Upload size={20} color={theme.colors.brand[400]} />}
-            onPress={() => {}}
           />
         </Card>
 
@@ -108,11 +95,13 @@ export default function AccountScreen() {
             subtitle='Manage people you split with'
             leading={<Users size={20} color={theme.colors.brand[400]} />}
             trailing={
-              <Typography variant='subheading' weight='semibold' color='accent'>
-                24
-              </Typography>
+              !friendsLoading ? (
+                <Typography variant='subheading' weight='semibold' color='accent'>
+                  {friendCount}
+                </Typography>
+              ) : undefined
             }
-            onPress={() => {}}
+            onPress={() => router.push('/(app)/account/friends')}
           />
         </Card>
 

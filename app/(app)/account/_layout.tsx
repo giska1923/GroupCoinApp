@@ -10,6 +10,7 @@ export default function AccountLayout() {
       }}
     >
       <Stack.Screen name='index' />
+      <Stack.Screen name='friends' />
     </Stack>
   );
 }

@@ -27,4 +27,10 @@ export {
 export { useBalances, useSimplifiedTransfers } from './useBalances';
 export { useSettlements, useCreateSettlement } from './useSettlements';
 export { useGroupActivity } from './useActivity';
-export { useOverview, useAllExpenses, useAllActivity } from './useAggregates';
+export {
+  useOverview,
+  useAllExpenses,
+  useAllActivity,
+  useSplitContacts,
+} from './useAggregates';
+export type { SplitContact } from './useAggregates';

@@ -1,10 +1,17 @@
 import { useMemo } from 'react';
 import { useQueries } from '@tanstack/react-query';
-import { activityApi, balancesApi, expensesApi } from '../api/resources';
+import { activityApi, balancesApi, expensesApi, groupsApi } from '../api/resources';
 import { queryKeys } from '../api/queryClient';
 import { useAuthStore } from '../stores/auth.store';
 import { useGroups } from './useGroups';
 import type { ActivityDTO, ExpenseDTO } from '../types/api';
+
+export interface SplitContact {
+  id: string;
+  name: string;
+  email: string;
+  groupNames: string[];
+}
 import { addAmounts, isNegativeAmount, isPositiveAmount, myBalanceAmounts, negateAmount, ZERO } from '../utils/money';
 import { DEFAULT_CURRENCY } from '../config/currency';
 
@@ -143,6 +150,72 @@ export const useAllActivity = () => {
     refetch: () => {
       groupsQuery.refetch();
       activityQueries.forEach(q => q.refetch());
+    },
+  };
+};
+
+/** Unique people the signed-in user shares at least one group with. */
+export const useSplitContacts = () => {
+  const groupsQuery = useGroups();
+  const groups = groupsQuery.data ?? [];
+  const userId = useAuthStore(s => s.user?.id);
+
+  const memberQueries = useQueries({
+    queries: groups.map(group => ({
+      queryKey: queryKeys.groups.members(group.id),
+      queryFn: () => groupsApi.members(group.id),
+      enabled: !!group.id,
+    })),
+  });
+
+  const contacts = useMemo(() => {
+    if (!userId) return [];
+
+    const groupNameById = Object.fromEntries(groups.map(g => [g.id, g.name]));
+    const byUserId = new Map<string, SplitContact>();
+
+    memberQueries.forEach((query, index) => {
+      const groupId = groups[index]?.id;
+      if (!groupId || !query.data) return;
+
+      const groupName = groupNameById[groupId] ?? 'Group';
+
+      query.data.forEach(member => {
+        if (String(member.userId) === String(userId)) return;
+
+        const user = member.user;
+        if (!user) return;
+
+        const existing = byUserId.get(member.userId);
+        if (existing) {
+          if (!existing.groupNames.includes(groupName)) {
+            existing.groupNames.push(groupName);
+          }
+          return;
+        }
+
+        byUserId.set(member.userId, {
+          id: member.userId,
+          name: user.name,
+          email: user.email,
+          groupNames: [groupName],
+        });
+      });
+    });
+
+    return Array.from(byUserId.values()).sort((a, b) =>
+      a.name.localeCompare(b.name, undefined, { sensitivity: 'base' }),
+    );
+  }, [memberQueries, groups, userId]);
+
+  return {
+    contacts,
+    count: contacts.length,
+    isLoading: groupsQuery.isLoading || memberQueries.some(q => q.isLoading),
+    isError: groupsQuery.isError || memberQueries.some(q => q.isError),
+    refetch: () => {
+      groupsQuery.refetch();
+      memberQueries.forEach(q => q.refetch());
     },
   };
 };
