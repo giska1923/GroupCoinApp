@@ -9,6 +9,10 @@ interface ChipProps {
   selected?: boolean;
   leading?: React.ReactNode;
   showCheckWhenSelected?: boolean;
+  /** Stretch to fill an equal share of the parent row. */
+  equalWidth?: boolean;
+  /** `split` uses outlined chips for expense participant pickers. */
+  variant?: 'default' | 'split';
   onPress?: () => void;
   style?: ViewStyle;
 }
@@ -18,10 +22,30 @@ export const Chip: React.FC<ChipProps> = ({
   selected = false,
   leading,
   showCheckWhenSelected = true,
+  equalWidth = false,
+  variant = 'default',
   onPress,
   style,
 }) => {
   const theme = useTheme();
+
+  const isSplit = variant === 'split';
+
+  const backgroundColor = isSplit
+    ? selected
+      ? theme.colors.brand[900]
+      : 'rgba(34, 34, 43, 0.55)'
+    : selected
+      ? theme.colors.brand[500]
+      : theme.colors.surface.secondary;
+
+  const borderColor = isSplit
+    ? selected
+      ? theme.colors.brand[500]
+      : theme.colors.surface.border
+    : selected
+      ? theme.colors.brand[500]
+      : theme.colors.surface.border;
 
   return (
     <TouchableOpacity
@@ -31,34 +55,43 @@ export const Chip: React.FC<ChipProps> = ({
       style={{
         flexDirection: 'row',
         alignItems: 'center',
-        gap: theme.spacing.sm,
+        justifyContent: equalWidth ? 'center' : 'flex-start',
+        gap: theme.spacing.xs,
         height: theme.components.chip.height,
-        paddingHorizontal: theme.spacing.lg,
+        paddingHorizontal: equalWidth ? theme.spacing.sm : theme.spacing.lg,
         borderRadius: theme.components.chip.radius,
         borderWidth: 1,
-        backgroundColor: selected
-          ? theme.colors.brand[500]
-          : theme.colors.surface.secondary,
-        borderColor: selected
-          ? theme.colors.brand[500]
-          : theme.colors.surface.border,
+        backgroundColor,
+        borderColor,
+        overflow: 'hidden',
+        ...(equalWidth ? { flex: 1, minWidth: 0 } : { maxWidth: '100%' }),
         ...style,
       }}
     >
       {leading}
-      <Typography
-        variant='caption'
-        weight='medium'
+      <View
         style={{
-          color: selected
-            ? theme.colors.text.primary
-            : theme.colors.text.secondary,
+          flexShrink: 1,
+          minWidth: 0,
+          ...(equalWidth ? { flex: 1 } : null),
         }}
       >
-        {label}
-      </Typography>
+        <Typography
+          variant={equalWidth ? 'body' : 'caption'}
+          weight='semibold'
+          numberOfLines={1}
+          ellipsizeMode='tail'
+          style={{
+            color: selected
+              ? theme.colors.text.primary
+              : theme.colors.text.secondary,
+          }}
+        >
+          {label}
+        </Typography>
+      </View>
       {selected && showCheckWhenSelected && (
-        <View style={{ marginLeft: 2 }}>
+        <View style={{ flexShrink: 0 }}>
           <Check size={14} color={theme.colors.text.primary} />
         </View>
       )}

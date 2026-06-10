@@ -1,33 +1,29 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { View, TextInput } from 'react-native';
+import {
+  View,
+  TextInput,
+  Pressable,
+  ScrollView,
+  KeyboardAvoidingView,
+  Platform,
+  StyleSheet,
+} from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTheme } from '../../../../src/theme/ThemeProvider';
-import { Screen } from '../../../../src/components/layout/Screen';
 import { Header } from '../../../../src/components/layout/Header';
 import { Row, Column } from '../../../../src/components/layout/Row';
-import {
-  Typography,
-  Button,
-  Chip,
-  SegmentedControl,
-  type SegmentOption,
-} from '../../../../src/components/ui';
+import { Typography, Button, Chip } from '../../../../src/components/ui';
 import { Spinner } from '../../../../src/components/feedback';
-import {
-  useGroup,
-  useGroupMembers,
-  useCreateExpense,
-} from '../../../../src/hooks';
+import { useGroupMembers, useCreateExpense } from '../../../../src/hooks';
 import { useAuthStore } from '../../../../src/stores/auth.store';
 import { ClientError } from '../../../../src/api/errors';
 import { DEFAULT_CURRENCY } from '../../../../src/config/currency';
-import { splitEqually, formatMoneyLabel, currencySymbol } from '../../../../src/utils/money';
-
-type SplitMode = 'EQUAL';
-
-const SPLIT_OPTIONS: SegmentOption<SplitMode>[] = [
-  { value: 'EQUAL', label: 'Split Equally' },
-];
+import {
+  splitEqually,
+  formatMoneyLabel,
+  currencySymbol,
+} from '../../../../src/utils/money';
 
 export default function AddExpenseScreen() {
   const theme = useTheme();
@@ -35,14 +31,12 @@ export default function AddExpenseScreen() {
   const groupId = String(id);
   const userId = useAuthStore(s => s.user?.id);
 
-  const group = useGroup(groupId);
   const members = useGroupMembers(groupId);
   const createExpense = useCreateExpense(groupId);
 
   const [amount, setAmount] = useState('');
   const [description, setDescription] = useState('');
   const [selected, setSelected] = useState<string[]>([]);
-  const [splitMode, setSplitMode] = useState<SplitMode>('EQUAL');
 
   const currency = DEFAULT_CURRENCY;
 
@@ -96,133 +90,218 @@ export default function AddExpenseScreen() {
         ? 'Could not save the expense. Please try again.'
         : undefined;
 
+  const allMemberIds = useMemo(
+    () => (members.data ?? []).map(m => m.userId),
+    [members.data],
+  );
+
+  const allSelected =
+    allMemberIds.length > 0 &&
+    allMemberIds.every(memberId => selected.includes(memberId));
+
+  const selectAllMembers = () => setSelected(allMemberIds);
+
+  const memberLabel = (memberUserId: string, name?: string | null) => {
+    if (memberUserId === userId) return 'You';
+    const display = (name ?? 'Member').trim();
+    return display.length <= 12 ? display.toUpperCase() : display;
+  };
+
+  const fieldTextStyle = {
+    color: theme.colors.text.primary,
+    fontSize: theme.fontSize['3xl'],
+    fontWeight: theme.fontWeight.bold,
+    paddingVertical: theme.spacing.sm,
+    borderBottomWidth: 1,
+    borderBottomColor: theme.colors.surface.border,
+  } as const;
+
   return (
-    <Screen variant='scroll' padding='lg' edges={['top', 'left', 'right']}>
-      <Header
-        title='New Expense'
-        leading='close'
-        onLeadingPress={close}
-        right={
-          <Button
-            variant='ghost'
-            size='sm'
-            disabled={!canSave}
-            textColor={canSave ? theme.colors.brand[400] : theme.colors.text.muted}
-            onPress={handleSave}
-          >
-            Save
-          </Button>
-        }
+    <View style={styles.root}>
+      <Pressable
+        style={[StyleSheet.absoluteFill, styles.backdrop]}
+        onPress={close}
+        accessibilityRole='button'
+        accessibilityLabel='Close'
+      />
+      <View
+        style={[StyleSheet.absoluteFill, styles.frost]}
+        pointerEvents='none'
       />
 
-      {/* Amount display */}
-      <Column align='center' gap='sm' style={{ paddingVertical: theme.spacing['2xl'] }}>
-        <Row gap='xs' align='center'>
-          <Typography variant='display' color='muted'>
-            {currencySymbol(currency)}
-          </Typography>
-          <TextInput
-            value={amount}
-            onChangeText={setAmount}
-            placeholder='0.00'
-            keyboardType='decimal-pad'
-            placeholderTextColor={theme.colors.text.muted}
-            selectionColor={theme.colors.brand[400]}
-            style={{
-              color: theme.colors.text.primary,
-              fontSize: theme.fontSize['5xl'],
-              fontWeight: theme.fontWeight.bold,
-              minWidth: 140,
-              textAlign: 'center',
-              padding: 0,
-            }}
-          />
-        </Row>
-      </Column>
-
-      <Column gap='xl'>
-        {/* Description */}
-        <Column gap='sm'>
-          <Typography variant='caption' color='secondary' weight='medium'>
-            What was this for?
-          </Typography>
-          <TextInput
-            value={description}
-            onChangeText={setDescription}
-            placeholder='Dinner, taxi, groceries…'
-            placeholderTextColor={theme.colors.text.muted}
-            selectionColor={theme.colors.brand[400]}
-            style={{
-              color: theme.colors.text.primary,
-              fontSize: theme.fontSize.lg,
-              paddingVertical: theme.spacing.sm,
-              borderBottomWidth: 1,
-              borderBottomColor: theme.colors.surface.border,
-            }}
-          />
-        </Column>
-
-        {/* Member chips */}
-        <Column gap='md'>
-          <Typography variant='caption' color='secondary' weight='medium'>
-            Split between
-          </Typography>
-          {members.isLoading ? (
-            <Spinner size='small' style={{ alignItems: 'flex-start' }} />
-          ) : (
-            <Row gap='sm' wrap>
-              {(members.data ?? []).map(member => (
-                <Chip
-                  key={member.userId}
-                  label={
-                    member.userId === userId
-                      ? 'You'
-                      : member.user?.name ?? 'Member'
-                  }
-                  selected={selected.includes(member.userId)}
-                  onPress={() => toggle(member.userId)}
-                />
-              ))}
-            </Row>
-          )}
-        </Column>
-
-        {/* Split mode */}
-        <SegmentedControl
-          options={SPLIT_OPTIONS}
-          value={splitMode}
-          onChange={setSplitMode}
-        />
-
-        {selected.length > 0 && (
-          <View style={{ alignItems: 'center', paddingVertical: theme.spacing.md }}>
-            <Typography variant='caption' color='secondary'>
-              Each pays{' '}
-              <Typography variant='caption' weight='semibold' color='accent'>
-                {formatMoneyLabel(perPerson, currency)}
-              </Typography>
-            </Typography>
-          </View>
-        )}
-
-        {errorMessage && (
-          <Typography variant='caption' color='negative' align='center'>
-            {errorMessage}
-          </Typography>
-        )}
-
-        <Button
-          variant='primary'
-          size='lg'
-          fullWidth
-          loading={createExpense.isPending}
-          disabled={!canSave}
-          onPress={handleSave}
+      <SafeAreaView edges={['top', 'left', 'right']} style={styles.safeArea}>
+        <KeyboardAvoidingView
+          behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+          style={styles.flex}
         >
-          Save Expense
-        </Button>
-      </Column>
-    </Screen>
+          <ScrollView
+            style={styles.flex}
+            contentContainerStyle={{
+              flexGrow: 1,
+              paddingHorizontal: theme.spacing.lg,
+              paddingBottom: theme.spacing['3xl'],
+            }}
+            showsVerticalScrollIndicator={false}
+            keyboardShouldPersistTaps='handled'
+          >
+            <Header
+              title='New Expense'
+              leading='close'
+              onLeadingPress={close}
+              style={{ backgroundColor: 'transparent' }}
+              right={
+                <Button
+                  variant='ghost'
+                  size='sm'
+                  disabled={!canSave}
+                  textColor={
+                    canSave ? theme.colors.brand[400] : theme.colors.text.muted
+                  }
+                  onPress={handleSave}
+                >
+                  Save
+                </Button>
+              }
+            />
+
+            {/* Amount display */}
+            <Column
+              align='center'
+              gap='sm'
+              style={{ paddingVertical: theme.spacing['3xl'] }}
+            >
+              <Row gap='xs' align='center'>
+                <Typography
+                  variant='display'
+                  color='primary'
+                  style={{
+                    fontSize: theme.fontSize['4xl'],
+                    opacity: amount ? 1 : 0.9,
+                  }}
+                >
+                  {currencySymbol(currency)}
+                </Typography>
+                <TextInput
+                  value={amount}
+                  onChangeText={setAmount}
+                  placeholder='0.00'
+                  keyboardType='decimal-pad'
+                  placeholderTextColor={theme.colors.text.primary}
+                  selectionColor={theme.colors.brand[400]}
+                  style={{
+                    color: theme.colors.text.primary,
+                    fontSize: 56,
+                    fontWeight: theme.fontWeight.bold,
+                    minWidth: 200,
+                    textAlign: 'center',
+                    padding: 0,
+                  }}
+                />
+              </Row>
+            </Column>
+
+            <Column gap='xl'>
+              <TextInput
+                value={description}
+                onChangeText={setDescription}
+                placeholder='What was this for?'
+                placeholderTextColor={theme.colors.text.primary}
+                selectionColor={theme.colors.brand[400]}
+                style={fieldTextStyle}
+              />
+
+              {members.isLoading ? (
+                <Spinner size='small' style={{ alignItems: 'flex-start' }} />
+              ) : (
+                <Row gap='sm'>
+                  {(members.data ?? []).map(member => (
+                    <Chip
+                      key={member.userId}
+                      label={memberLabel(member.userId, member.user?.name)}
+                      selected={selected.includes(member.userId)}
+                      onPress={() => toggle(member.userId)}
+                      variant='split'
+                      equalWidth
+                    />
+                  ))}
+                  <Chip
+                    label='Split equally'
+                    selected={allSelected}
+                    onPress={selectAllMembers}
+                    variant='split'
+                    equalWidth
+                    showCheckWhenSelected={false}
+                  />
+                </Row>
+              )}
+
+              {selected.length > 0 && (
+                <View
+                  style={{
+                    alignItems: 'center',
+                    paddingVertical: theme.spacing.md,
+                  }}
+                >
+                  <Typography
+                    variant='heading'
+                    color='primary'
+                    weight='bold'
+                    align='center'
+                    style={{ fontSize: theme.fontSize['2xl'] }}
+                  >
+                    Each pays{' '}
+                    <Typography
+                      variant='heading'
+                      color='accent'
+                      weight='bold'
+                      style={{ fontSize: theme.fontSize['2xl'] }}
+                    >
+                      {formatMoneyLabel(perPerson, currency)}
+                    </Typography>
+                  </Typography>
+                </View>
+              )}
+
+              {errorMessage && (
+                <Typography variant='caption' color='negative' align='center'>
+                  {errorMessage}
+                </Typography>
+              )}
+
+              <Button
+                variant='primary'
+                size='lg'
+                fullWidth
+                loading={createExpense.isPending}
+                disabled={!canSave}
+                onPress={handleSave}
+              >
+                Save Expense
+              </Button>
+            </Column>
+          </ScrollView>
+        </KeyboardAvoidingView>
+      </SafeAreaView>
+    </View>
   );
 }
 
+const styles = StyleSheet.create({
+  root: {
+    flex: 1,
+    backgroundColor: 'transparent',
+  },
+  backdrop: {
+    backgroundColor: 'rgba(0, 0, 0, 0.45)',
+  },
+  frost: {
+    backgroundColor: 'rgba(255, 255, 255, 0.24)',
+  },
+  safeArea: {
+    flex: 1,
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+  },
+  flex: {
+    flex: 1,
+  },
+});

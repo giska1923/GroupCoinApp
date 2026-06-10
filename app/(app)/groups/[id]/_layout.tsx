@@ -12,7 +12,11 @@ export default function GroupDetailLayout() {
       <Stack.Screen name='index' />
       <Stack.Screen
         name='add-expense'
-        options={{ presentation: 'modal', animation: 'slide_from_bottom' }}
+        options={{
+          presentation: 'transparentModal',
+          animation: 'fade',
+          contentStyle: { backgroundColor: 'transparent' },
+        }}
       />
       <Stack.Screen
         name='edit'
