@@ -29,6 +29,14 @@ export const endpoints = {
     expenses: (id: string) => `/groups/${id}/expenses`,
     settlements: (id: string) => `/groups/${id}/settlements`,
     activity: (id: string) => `/groups/${id}/activity`,
+    invitations: (id: string) => `/groups/${id}/invitations`,
+    revokeInvitation: (groupId: string, invitationId: string) =>
+      `/groups/${groupId}/invitations/${invitationId}`,
+  },
+  invitations: {
+    list: '/invitations',
+    accept: (id: string) => `/invitations/${id}/accept`,
+    decline: (id: string) => `/invitations/${id}/decline`,
   },
   expenses: {
     detail: (id: string) => `/expenses/${id}`,

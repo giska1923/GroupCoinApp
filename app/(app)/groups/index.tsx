@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, ScrollView } from 'react-native';
 import { router } from 'expo-router';
-import { Bell, Users } from 'lucide-react-native';
+import { Users } from 'lucide-react-native';
 import { useTheme } from '../../../src/theme/ThemeProvider';
 import { Screen } from '../../../src/components/layout/Screen';
 import { Header } from '../../../src/components/layout/Header';
@@ -18,7 +18,8 @@ import {
   EmptyState,
   ErrorState,
 } from '../../../src/components/feedback';
-import { useOverview } from '../../../src/hooks';
+import { InvitationBell } from '../../../src/components/groups/InvitationsInbox';
+import { useOverview, useInvitations } from '../../../src/hooks';
 
 export default function GroupsScreen() {
   const theme = useTheme();
@@ -30,6 +31,8 @@ export default function GroupsScreen() {
     youOwe,
     isLoadingBalances,
   } = useOverview();
+  const invitations = useInvitations();
+  const invitationCount = invitations.data?.length ?? 0;
 
   const netFlowType =
     netFlowCents > 0 ? 'positive' : netFlowCents < 0 ? 'negative' : 'neutral';
@@ -47,7 +50,7 @@ export default function GroupsScreen() {
           titleTone='brand'
           leading='none'
           align='left'
-          right={<Bell size={22} color={theme.colors.text.secondary} />}
+          right={<InvitationBell count={invitationCount} />}
         />
       </View>
 

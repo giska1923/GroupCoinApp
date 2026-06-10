@@ -1,61 +1,104 @@
-import React, { useState } from 'react';
-import { router } from 'expo-router';
-import { useTheme } from '../../../src/theme/ThemeProvider';
-import { Screen } from '../../../src/components/layout/Screen';
-import { Header } from '../../../src/components/layout/Header';
-import { Row, Column } from '../../../src/components/layout/Row';
-import { Typography, TextField, Button, Chip } from '../../../src/components/ui';
-import { MemberInviteSection } from '../../../src/components/groups/MemberInviteSection';
-import { useCreateGroup } from '../../../src/hooks';
-import { ClientError } from '../../../src/api/errors';
+import React, { useEffect, useState } from 'react';
+import { router, useLocalSearchParams } from 'expo-router';
+import { useTheme } from '../../../../src/theme/ThemeProvider';
+import { Screen } from '../../../../src/components/layout/Screen';
+import { Header } from '../../../../src/components/layout/Header';
+import { Row, Column } from '../../../../src/components/layout/Row';
+import { Typography, TextField, Button, Chip } from '../../../../src/components/ui';
+import { Spinner, ErrorState } from '../../../../src/components/feedback';
+import { MemberInviteSection } from '../../../../src/components/groups/MemberInviteSection';
+import {
+  useGroup,
+  useGroupMembers,
+  useUpdateGroup,
+  useInviteMember,
+} from '../../../../src/hooks';
+import { ClientError } from '../../../../src/api/errors';
 
 const CURRENCIES = ['USD', 'EUR', 'GBP', 'JPY'];
 
-export default function NewGroupScreen() {
+export default function EditGroupScreen() {
   const theme = useTheme();
+  const { id } = useLocalSearchParams<{ id: string }>();
+  const groupId = String(id);
+
+  const group = useGroup(groupId);
+  const members = useGroupMembers(groupId);
+  const updateGroup = useUpdateGroup(groupId);
+  const inviteMember = useInviteMember(groupId);
+
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [currency, setCurrency] = useState('USD');
   const [pendingEmails, setPendingEmails] = useState<string[]>([]);
   const [saving, setSaving] = useState(false);
-  const createGroup = useCreateGroup();
+  const [saveError, setSaveError] = useState<string>();
 
-  const canSave = name.trim().length > 0 && !saving && !createGroup.isPending;
+  useEffect(() => {
+    if (!group.data) return;
+    setName(group.data.name ?? '');
+    setDescription(group.data.description ?? '');
+    setCurrency(group.data.currency ?? 'USD');
+  }, [group.data]);
+
+  const canSave =
+    (name ?? '').trim().length > 0 &&
+    !saving &&
+    !updateGroup.isPending &&
+    !inviteMember.isPending;
 
   const close = () => {
     if (router.canGoBack()) router.back();
   };
 
   const handleSave = async () => {
+    setSaveError(undefined);
     setSaving(true);
 
     try {
-      await createGroup.mutateAsync({
-        name: name.trim(),
-        description: description.trim() || undefined,
+      await updateGroup.mutateAsync({
+        name: (name ?? '').trim(),
+        description: (description ?? '').trim() || undefined,
         currency,
-        inviteEmails: pendingEmails.length > 0 ? pendingEmails : undefined,
       });
 
+      for (const email of pendingEmails) {
+        await inviteMember.mutateAsync(email);
+      }
+
+      setPendingEmails([]);
       close();
-    } catch {
-      // Error surfaced via createGroup.error below.
+    } catch (error) {
+      setSaveError(
+        error instanceof ClientError
+          ? error.message
+          : 'Could not save the group. Please try again.',
+      );
     } finally {
       setSaving(false);
     }
   };
 
-  const errorMessage =
-    createGroup.error instanceof ClientError
-      ? createGroup.error.message
-      : createGroup.error
-        ? 'Could not create the group. Please try again.'
-        : undefined;
+  if (group.isLoading || members.isLoading) {
+    return (
+      <Screen variant='fixed' padding='lg'>
+        <Spinner fill />
+      </Screen>
+    );
+  }
+
+  if (group.isError || !group.data) {
+    return (
+      <Screen variant='fixed' padding='lg'>
+        <ErrorState error={group.error} onRetry={() => group.refetch()} />
+      </Screen>
+    );
+  }
 
   return (
     <Screen variant='scroll' padding='lg' edges={['top', 'left', 'right']}>
       <Header
-        title='New Group'
+        title='Edit Group'
         leading='close'
         onLeadingPress={close}
         right={
@@ -107,6 +150,7 @@ export default function NewGroupScreen() {
         </Column>
 
         <MemberInviteSection
+          existingMembers={members.data}
           pendingEmails={pendingEmails}
           onAddEmail={email =>
             setPendingEmails(prev =>
@@ -118,9 +162,9 @@ export default function NewGroupScreen() {
           }
         />
 
-        {errorMessage && (
+        {saveError && (
           <Typography variant='caption' color='negative'>
-            {errorMessage}
+            {saveError}
           </Typography>
         )}
 
@@ -132,7 +176,7 @@ export default function NewGroupScreen() {
           disabled={!canSave}
           onPress={handleSave}
         >
-          Create Group
+          Save Changes
         </Button>
       </Column>
     </Screen>

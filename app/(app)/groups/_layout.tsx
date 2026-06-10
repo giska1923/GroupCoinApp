@@ -14,6 +14,7 @@ export default function GroupsStackLayout() {
         name='new'
         options={{ presentation: 'modal', animation: 'slide_from_bottom' }}
       />
+      <Stack.Screen name='invitations' />
       <Stack.Screen name='[id]' />
     </Stack>
   );

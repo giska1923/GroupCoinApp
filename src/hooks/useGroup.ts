@@ -38,13 +38,28 @@ export const useDeleteGroup = (id: string) => {
   });
 };
 
-export const useAddMember = (id: string) => {
+export const useInviteMember = (id: string) => {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: (email: string) => groupsApi.addMember(id, email),
+    mutationFn: (email: string) => groupsApi.inviteMember(id, email),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: queryKeys.groups.members(id) });
       qc.invalidateQueries({ queryKey: queryKeys.groups.detail(id) });
+      qc.invalidateQueries({ queryKey: queryKeys.invitations.group(id) });
+    },
+  });
+};
+
+/** @deprecated Use useInviteMember — members are added via invitation accept. */
+export const useAddMember = useInviteMember;
+
+export const useLeaveGroup = (id: string) => {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (memberId: string) => groupsApi.removeMember(id, memberId),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: queryKeys.groups.all });
+      qc.removeQueries({ queryKey: queryKeys.groups.detail(id) });
     },
   });
 };

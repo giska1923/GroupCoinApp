@@ -34,9 +34,35 @@ export interface GroupMemberDTO {
   id: string;
   userId: string;
   groupId: string;
-  role: 'MEMBER' | 'ADMIN';
+  role: 'MEMBER' | 'ADMIN' | 'OWNER';
   joinedAt: string;
+  createdAt?: string;
   user: UserDTO;
+}
+
+export type InvitationStatus =
+  | 'PENDING'
+  | 'ACCEPTED'
+  | 'DECLINED'
+  | 'REVOKED';
+
+export interface InvitationDTO {
+  id: string;
+  groupId: string;
+  inviterId: string;
+  inviteeEmail: string;
+  inviteeUserId: string | null;
+  role: 'MEMBER' | 'ADMIN';
+  status: InvitationStatus;
+  expiresAt: string;
+  createdAt: string;
+  group?: GroupDTO;
+  inviter?: UserDTO;
+}
+
+export interface GroupDetailDTO {
+  group: GroupDTO;
+  members: GroupMemberDTO[];
 }
 
 export interface ExpenseDTO {
@@ -119,12 +145,15 @@ export interface ActivityPageDTO {
 export interface CreateGroupPayload {
   name: string;
   description?: string;
+  /** Mapped to `defaultCurrency` on the API. */
   currency?: string;
+  inviteEmails?: string[];
 }
 
 export interface UpdateGroupPayload {
   name?: string;
   description?: string;
+  /** Mapped to `defaultCurrency` on the API. */
   currency?: string;
 }
 

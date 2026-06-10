@@ -44,4 +44,8 @@ export const queryKeys = {
   activity: {
     group: (groupId: string) => ['activity', 'group', groupId] as const,
   },
+  invitations: {
+    all: ['invitations'] as const,
+    group: (groupId: string) => ['invitations', 'group', groupId] as const,
+  },
 };

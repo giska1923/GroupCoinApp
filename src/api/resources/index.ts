@@ -1,6 +1,7 @@
 export { authApi } from './auth';
 export { usersApi } from './users';
 export { groupsApi } from './groups';
+export { invitationsApi } from './invitations';
 export { expensesApi } from './expenses';
 export { balancesApi } from './balances';
 export { settlementsApi } from './settlements';

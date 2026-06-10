@@ -14,6 +14,10 @@ export default function GroupDetailLayout() {
         name='add-expense'
         options={{ presentation: 'modal', animation: 'slide_from_bottom' }}
       />
+      <Stack.Screen
+        name='edit'
+        options={{ presentation: 'modal', animation: 'slide_from_bottom' }}
+      />
     </Stack>
   );
 }

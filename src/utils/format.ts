@@ -26,6 +26,21 @@ export const formatShortDate = (iso: string): string =>
     day: 'numeric',
   });
 
+/** e.g. "Expires in 5 days" / "Expires today" / "Expired" */
+export const formatInvitationExpiry = (expiresAt: string): string => {
+  const now = Date.now();
+  const expiry = new Date(expiresAt).getTime();
+  const diffMs = expiry - now;
+
+  if (diffMs <= 0) return 'Expired';
+
+  const diffDays = Math.ceil(diffMs / 86_400_000);
+  if (diffDays === 1) return 'Expires in 1 day';
+  if (diffDays <= 7) return `Expires in ${diffDays} days`;
+
+  return `Expires ${formatShortDate(expiresAt)}`;
+};
+
 export interface ActivityCopy {
   actor: string;
   action: string;
