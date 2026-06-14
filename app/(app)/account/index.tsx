@@ -4,6 +4,7 @@ import { router } from 'expo-router';
 import {
   Bell,
   Shield,
+  MessageSquare,
   Users,
   LogOut,
 } from 'lucide-react-native';
@@ -19,6 +20,7 @@ import {
   ListItem,
   Switch,
 } from '../../../src/components/ui';
+import { SupportFeedbackSheet } from '../../../src/components/account/SupportFeedbackSheet';
 import { useCurrentUser, useLogout, useSplitContacts } from '../../../src/hooks';
 import { useAuthStore } from '../../../src/stores/auth.store';
 
@@ -33,6 +35,7 @@ const initialsOf = (name?: string) =>
 export default function AccountScreen() {
   const theme = useTheme();
   const [notifications, setNotifications] = useState(true);
+  const [feedbackOpen, setFeedbackOpen] = useState(false);
 
   const storedUser = useAuthStore(s => s.user);
   const { data: fetchedUser } = useCurrentUser();
@@ -85,6 +88,12 @@ export default function AccountScreen() {
             title='Privacy & Security'
             leading={<Shield size={20} color={theme.colors.brand[400]} />}
             onPress={() => {}}
+            divider
+          />
+          <ListItem
+            title='Support & Feedback'
+            leading={<MessageSquare size={20} color={theme.colors.brand[400]} />}
+            onPress={() => setFeedbackOpen(true)}
           />
         </Card>
 
@@ -117,6 +126,11 @@ export default function AccountScreen() {
           Sign Out
         </Button>
       </Column>
+
+      <SupportFeedbackSheet
+        visible={feedbackOpen}
+        onClose={() => setFeedbackOpen(false)}
+      />
     </Screen>
   );
 }

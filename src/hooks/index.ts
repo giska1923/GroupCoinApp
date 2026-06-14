@@ -34,3 +34,4 @@ export {
   useSplitContacts,
 } from './useAggregates';
 export type { SplitContact } from './useAggregates';
+export { useSubmitFeedback } from './useFeedback';

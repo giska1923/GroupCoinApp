@@ -6,3 +6,4 @@ export { expensesApi } from './expenses';
 export { balancesApi } from './balances';
 export { settlementsApi } from './settlements';
 export { activityApi } from './activity';
+export { feedbackApi } from './feedback';

@@ -40,11 +40,7 @@ export interface GroupMemberDTO {
   user: UserDTO;
 }
 
-export type InvitationStatus =
-  | 'PENDING'
-  | 'ACCEPTED'
-  | 'DECLINED'
-  | 'REVOKED';
+export type InvitationStatus = 'PENDING' | 'ACCEPTED' | 'DECLINED' | 'REVOKED';
 
 export interface InvitationDTO {
   id: string;
@@ -131,7 +127,13 @@ export interface SettlementDTO {
 
 export interface ActivityDTO {
   id: string;
-  type: 'EXPENSE_CREATED' | 'EXPENSE_UPDATED' | 'EXPENSE_DELETED' | 'SETTLEMENT_CREATED' | 'MEMBER_JOINED' | 'MEMBER_LEFT';
+  type:
+    | 'EXPENSE_CREATED'
+    | 'EXPENSE_UPDATED'
+    | 'EXPENSE_DELETED'
+    | 'SETTLEMENT_CREATED'
+    | 'MEMBER_JOINED'
+    | 'MEMBER_LEFT';
   actorId: string;
   groupId: string | null;
   entityType?: string | null;
@@ -199,4 +201,19 @@ export interface UpdateUserPayload {
   name?: string;
   email?: string;
   contact?: string;
+}
+
+export type FeedbackTopic = 'Bug' | 'Feature' | 'General';
+
+export interface SubmitFeedbackPayload {
+  topic: FeedbackTopic;
+  message: string;
+}
+
+export interface FeedbackDTO {
+  id: string;
+  userId: string;
+  topic: FeedbackTopic;
+  message: string;
+  createdAt: string;
 }

@@ -43,4 +43,7 @@ export const endpoints = {
     update: (id: string) => `/expenses/${id}`,
     remove: (id: string) => `/expenses/${id}`,
   },
+  feedback: {
+    submit: '/feedback',
+  },
 } as const;
