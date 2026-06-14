@@ -20,6 +20,7 @@ import {
   ListItem,
   Switch,
 } from '../../../src/components/ui';
+import { PrivacySecuritySheet } from '../../../src/components/account/PrivacySecuritySheet';
 import { SupportFeedbackSheet } from '../../../src/components/account/SupportFeedbackSheet';
 import { useCurrentUser, useLogout, useSplitContacts } from '../../../src/hooks';
 import { useAuthStore } from '../../../src/stores/auth.store';
@@ -35,6 +36,7 @@ const initialsOf = (name?: string) =>
 export default function AccountScreen() {
   const theme = useTheme();
   const [notifications, setNotifications] = useState(true);
+  const [privacyOpen, setPrivacyOpen] = useState(false);
   const [feedbackOpen, setFeedbackOpen] = useState(false);
 
   const storedUser = useAuthStore(s => s.user);
@@ -87,7 +89,7 @@ export default function AccountScreen() {
           <ListItem
             title='Privacy & Security'
             leading={<Shield size={20} color={theme.colors.brand[400]} />}
-            onPress={() => {}}
+            onPress={() => setPrivacyOpen(true)}
             divider
           />
           <ListItem
@@ -126,6 +128,11 @@ export default function AccountScreen() {
           Sign Out
         </Button>
       </Column>
+
+      <PrivacySecuritySheet
+        visible={privacyOpen}
+        onClose={() => setPrivacyOpen(false)}
+      />
 
       <SupportFeedbackSheet
         visible={feedbackOpen}
