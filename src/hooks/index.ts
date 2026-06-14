@@ -1,4 +1,5 @@
 export { useCurrentUser, useLogin, useRegister, useLogout } from './useAuth';
+export { useUpdateUser, useDeleteUser } from './useUser';
 export { useGroups, useCreateGroup } from './useGroups';
 export {
   useGroup,

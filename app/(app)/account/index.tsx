@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View } from 'react-native';
+import { View, TouchableOpacity, Alert } from 'react-native';
 import { router } from 'expo-router';
 import {
   Bell,
@@ -7,6 +7,7 @@ import {
   MessageSquare,
   Users,
   LogOut,
+  EllipsisVertical,
 } from 'lucide-react-native';
 import { useTheme } from '../../../src/theme/ThemeProvider';
 import { Screen } from '../../../src/components/layout/Screen';
@@ -20,10 +21,18 @@ import {
   ListItem,
   Switch,
 } from '../../../src/components/ui';
+import { AccountMenuSheet } from '../../../src/components/account/AccountMenuSheet';
+import { EditAccountSheet } from '../../../src/components/account/EditAccountSheet';
 import { PrivacySecuritySheet } from '../../../src/components/account/PrivacySecuritySheet';
 import { SupportFeedbackSheet } from '../../../src/components/account/SupportFeedbackSheet';
-import { useCurrentUser, useLogout, useSplitContacts } from '../../../src/hooks';
+import {
+  useCurrentUser,
+  useLogout,
+  useSplitContacts,
+  useDeleteUser,
+} from '../../../src/hooks';
 import { useAuthStore } from '../../../src/stores/auth.store';
+import { ClientError } from '../../../src/api/errors';
 
 const initialsOf = (name?: string) =>
   (name ?? '')
@@ -36,6 +45,8 @@ const initialsOf = (name?: string) =>
 export default function AccountScreen() {
   const theme = useTheme();
   const [notifications, setNotifications] = useState(true);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [editOpen, setEditOpen] = useState(false);
   const [privacyOpen, setPrivacyOpen] = useState(false);
   const [feedbackOpen, setFeedbackOpen] = useState(false);
 
@@ -43,17 +54,80 @@ export default function AccountScreen() {
   const { data: fetchedUser } = useCurrentUser();
   const user = fetchedUser ?? storedUser;
   const logout = useLogout();
+  const deleteUser = useDeleteUser();
   const { count: friendCount, isLoading: friendsLoading } = useSplitContacts();
+
+  const accountActionLoading = deleteUser.isPending;
 
   const handleSignOut = async () => {
     await logout();
     router.replace('/(auth)/welcome');
   };
 
+  const showActionError = (error: unknown, fallback: string) => {
+    Alert.alert(
+      'Something went wrong',
+      error instanceof ClientError ? error.message : fallback,
+    );
+  };
+
+  const handleEdit = () => {
+    setMenuOpen(false);
+    setEditOpen(true);
+  };
+
+  const confirmDelete = () => {
+    setMenuOpen(false);
+
+    Alert.alert(
+      'Delete account?',
+      'This permanently deletes your account and signs you out.',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Delete',
+          style: 'destructive',
+          onPress: () =>
+            deleteUser.mutate(undefined, {
+              onSuccess: async () => {
+                await logout();
+                router.replace('/(auth)/welcome');
+              },
+              onError: error =>
+                showActionError(error, 'Could not delete your account.'),
+            }),
+        },
+      ],
+    );
+  };
+
   return (
     <Screen variant='scroll' padding='none'>
       <View style={{ paddingHorizontal: theme.spacing.lg }}>
-        <Header title='Profile & Account' leading='none' align='center' />
+        <Header
+          title='Profile & Account'
+          leading='none'
+          align='center'
+          right={
+            <TouchableOpacity
+              onPress={() => setMenuOpen(true)}
+              hitSlop={8}
+              style={{
+                width: 40,
+                height: 40,
+                borderRadius: theme.radius.full,
+                alignItems: 'center',
+                justifyContent: 'center',
+                backgroundColor: theme.colors.surface.secondary,
+              }}
+            >
+              <EllipsisVertical
+                size={22}
+                color={theme.colors.text.secondary}
+              />
+            </TouchableOpacity>
+          }
+        />
       </View>
 
       {/* Profile */}
@@ -128,6 +202,20 @@ export default function AccountScreen() {
           Sign Out
         </Button>
       </Column>
+
+      <AccountMenuSheet
+        visible={menuOpen}
+        onClose={() => setMenuOpen(false)}
+        onEdit={handleEdit}
+        onDelete={confirmDelete}
+        loading={accountActionLoading}
+      />
+
+      <EditAccountSheet
+        visible={editOpen}
+        onClose={() => setEditOpen(false)}
+        currentName={user?.name}
+      />
 
       <PrivacySecuritySheet
         visible={privacyOpen}

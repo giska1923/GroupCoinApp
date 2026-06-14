@@ -19,4 +19,7 @@ export const authApi = {
       .then(r => r.data),
 
   me: () => apiClient.get<UserDTO>(endpoints.auth.me).then(r => r.data),
+
+  deleteMe: () =>
+    apiClient.delete<void>(endpoints.auth.me).then(() => undefined),
 };
