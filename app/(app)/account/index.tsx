@@ -105,9 +105,10 @@ export default function AccountScreen() {
     <Screen variant='scroll' padding='none'>
       <View style={{ paddingHorizontal: theme.spacing.lg }}>
         <Header
-          title='Profile & Account'
+          title='GroupCoin'
+          titleTone='brand'
           leading='none'
-          align='center'
+          align='left'
           right={
             <TouchableOpacity
               onPress={() => setMenuOpen(true)}
@@ -121,17 +122,18 @@ export default function AccountScreen() {
                 backgroundColor: theme.colors.surface.secondary,
               }}
             >
-              <EllipsisVertical
-                size={22}
-                color={theme.colors.text.secondary}
-              />
+              <EllipsisVertical size={22} color={theme.colors.text.secondary} />
             </TouchableOpacity>
           }
         />
       </View>
 
       {/* Profile */}
-      <Column align='center' gap='md' style={{ paddingVertical: theme.spacing.xl }}>
+      <Column
+        align='center'
+        gap='md'
+        style={{ paddingVertical: theme.spacing.xl }}
+      >
         <Avatar
           size='xl'
           initials={initialsOf(user?.name)}
@@ -168,7 +170,9 @@ export default function AccountScreen() {
           />
           <ListItem
             title='Support & Feedback'
-            leading={<MessageSquare size={20} color={theme.colors.brand[400]} />}
+            leading={
+              <MessageSquare size={20} color={theme.colors.brand[400]} />
+            }
             onPress={() => setFeedbackOpen(true)}
           />
         </Card>
@@ -181,7 +185,11 @@ export default function AccountScreen() {
             leading={<Users size={20} color={theme.colors.brand[400]} />}
             trailing={
               !friendsLoading ? (
-                <Typography variant='subheading' weight='semibold' color='accent'>
+                <Typography
+                  variant='subheading'
+                  weight='semibold'
+                  color='accent'
+                >
                   {friendCount}
                 </Typography>
               ) : undefined

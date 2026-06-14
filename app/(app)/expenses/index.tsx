@@ -24,7 +24,7 @@ export default function ExpensesScreen() {
   return (
     <Screen variant='scroll' padding='none' onRefresh={refetch}>
       <View style={{ paddingHorizontal: theme.spacing.lg }}>
-        <Header title='Expenses' leading='none' align='left' />
+        <Header title='GroupCoin' titleTone='brand' leading='none' align='left' />
       </View>
 
       <Row gap='md' style={{ paddingHorizontal: theme.spacing.lg }}>

@@ -34,7 +34,7 @@ export default function ActivityScreen() {
   return (
     <Screen variant='scroll' padding='none' onRefresh={refetch}>
       <View style={{ paddingHorizontal: theme.spacing.lg }}>
-        <Header title='Activity' leading='none' align='left' />
+        <Header title='GroupCoin' titleTone='brand' leading='none' align='left' />
       </View>
 
       {isLoading ? (
