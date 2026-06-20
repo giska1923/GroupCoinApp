@@ -173,10 +173,9 @@ export default function AddExpenseScreen() {
               <Row gap='xs' align='center'>
                 <Typography
                   variant='display'
-                  color='primary'
+                  color='muted'
                   style={{
                     fontSize: theme.fontSize['4xl'],
-                    opacity: amount ? 1 : 0.9,
                   }}
                 >
                   {currencySymbol(currency)}
@@ -205,7 +204,7 @@ export default function AddExpenseScreen() {
                 value={description}
                 onChangeText={setDescription}
                 placeholder='What was this for?'
-                placeholderTextColor={theme.colors.text.primary}
+                placeholderTextColor={theme.colors.text.secondary}
                 selectionColor={theme.colors.brand[400]}
                 style={fieldTextStyle}
               />
@@ -292,14 +291,16 @@ const styles = StyleSheet.create({
     backgroundColor: 'transparent',
   },
   backdrop: {
-    backgroundColor: 'rgba(0, 0, 0, 0.45)',
+    backgroundColor: 'rgba(0, 0, 0, 0.25)',
   },
+  // Lighter, slightly blue-toned slate scrim — a clean dark surface that
+  // matches the goal without crushing to near-black.
   frost: {
-    backgroundColor: 'rgba(255, 255, 255, 0.24)',
+    backgroundColor: 'rgba(38, 41, 56, 0.92)',
   },
   safeArea: {
     flex: 1,
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    backgroundColor: 'transparent',
   },
   flex: {
     flex: 1,

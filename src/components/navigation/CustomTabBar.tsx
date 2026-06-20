@@ -125,6 +125,8 @@ export const CustomTabBar: React.FC<TabBarProps> = ({ state, navigation }) => {
         height={totalHeight}
         notchCenter={screenWidth / 2}
         notchRadius={theme.components.tabBar.notchRadius}
+        // Concave cradle dips below the FAB; the FAB itself is lifted to float
+        // above the curve with a gap (see the FAB `top` offset below).
         notchDepth={theme.components.tabBar.notchDepth}
         cornerRadius={theme.components.tabBar.radius}
         fill={theme.colors.surface.tabBar}
@@ -148,9 +150,9 @@ export const CustomTabBar: React.FC<TabBarProps> = ({ state, navigation }) => {
             style={{
               position: 'absolute',
               alignSelf: 'center',
-              // Lift the FAB so it sits above the cradle curve rather than
-              // nestling into it.
-              top: -fab / 2 - theme.spacing.xl,
+              // Lift the FAB so it floats inside the mouth of the concave
+              // cradle without touching the curve.
+              top: -fab + theme.spacing.xs,
             }}
           >
             <TouchableOpacity
@@ -162,13 +164,14 @@ export const CustomTabBar: React.FC<TabBarProps> = ({ state, navigation }) => {
                 width: fab,
                 height: fab,
                 borderRadius: fab / 2,
-                backgroundColor: theme.colors.brand[500],
+                backgroundColor: theme.colors.brand[600],
                 alignItems: 'center',
                 justifyContent: 'center',
-                shadowColor: theme.colors.brand[500],
-                shadowOffset: { width: 0, height: 6 },
-                shadowOpacity: 0.5,
-                shadowRadius: 12,
+                // Soft purple glow halo around the button.
+                shadowColor: theme.colors.brand[400],
+                shadowOffset: { width: 0, height: 0 },
+                shadowOpacity: 0.7,
+                shadowRadius: 16,
                 elevation: 10,
               }}
             >
