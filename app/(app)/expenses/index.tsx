@@ -28,17 +28,17 @@ export default function ExpensesScreen() {
       </View>
 
       <Row gap='md' style={{ paddingHorizontal: theme.spacing.lg }}>
-        <Card variant='default' padding='lg' style={{ flex: 1 }}>
-          <Typography variant='caption' color='secondary'>
+        <Card variant='default' padding='lg' style={{ flex: 1, alignItems: 'center' }}>
+          <Typography variant='subheading' color='secondary' align='center'>
             You are owed
           </Typography>
-          <Amount value={owedToYou} variant='large' type='positive' showSign={false} />
+          <Amount value={owedToYou} variant='display' type='positive' showSign={false} />
         </Card>
-        <Card variant='default' padding='lg' style={{ flex: 1 }}>
-          <Typography variant='caption' color='secondary'>
+        <Card variant='default' padding='lg' style={{ flex: 1, alignItems: 'center' }}>
+          <Typography variant='subheading' color='secondary' align='center'>
             You owe
           </Typography>
-          <Amount value={youOwe} variant='large' type='negative' showSign={false} />
+          <Amount value={youOwe} variant='display' type='negative' showSign={false} />
         </Card>
       </Row>
 

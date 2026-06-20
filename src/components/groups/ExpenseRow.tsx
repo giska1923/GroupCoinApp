@@ -59,25 +59,25 @@ export const ExpenseRow: React.FC<ExpenseRowProps> = ({
       style={{ overflow: 'hidden' }}
     >
       <View style={{ flexDirection: 'row', alignItems: 'stretch' }}>
-        <Column gap='xs' style={{ flex: 1, padding: theme.spacing.lg }}>
-          <Typography variant='body' weight='semibold'>
+        <Column gap='sm' style={{ flex: 1, padding: theme.spacing.xl }}>
+          <Typography variant='heading' weight='bold'>
             {expense.description}
           </Typography>
-          <Typography variant='caption' color='secondary'>
+          <Typography variant='subheading' color='secondary'>
             {payerName} paid {formatMoneyLabel(expense.amount, currency)}
           </Typography>
           {detailLoading ? (
             <Spinner size='small' style={{ alignItems: 'flex-start' }} />
           ) : detailFailed ? (
-            <Typography variant='label' color='muted'>
+            <Typography variant='body' color='muted'>
               Could not load your share
             </Typography>
           ) : (
-            <Typography variant='caption' color='secondary'>
+            <Typography variant='subheading' color='secondary'>
               Your share: {formatMoneyLabel(yourShare, currency)}
             </Typography>
           )}
-          <Typography variant='label' color='muted'>
+          <Typography variant='body' color='muted'>
             {formatShortDate(expense.expenseDate)}
           </Typography>
         </Column>
@@ -85,10 +85,10 @@ export const ExpenseRow: React.FC<ExpenseRowProps> = ({
         <Column
           justify='center'
           align='center'
-          gap='xs'
+          gap='sm'
           style={{
-            width: 132,
-            paddingHorizontal: theme.spacing.md,
+            width: 148,
+            paddingHorizontal: theme.spacing.lg,
             backgroundColor: !involved
               ? theme.colors.surface.tertiary
               : positive
@@ -97,8 +97,9 @@ export const ExpenseRow: React.FC<ExpenseRowProps> = ({
           }}
         >
           <Typography
-            variant='label'
+            variant='subheading'
             weight='semibold'
+            align='center'
             style={{
               color: !involved
                 ? theme.colors.text.muted
@@ -114,7 +115,7 @@ export const ExpenseRow: React.FC<ExpenseRowProps> = ({
                 : 'You Owe'}
           </Typography>
           {involved && (
-            <Amount value={net} currency={currency} variant='large' />
+            <Amount value={net} currency={currency} variant='display' />
           )}
         </Column>
       </View>

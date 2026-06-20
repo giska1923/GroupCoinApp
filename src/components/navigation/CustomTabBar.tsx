@@ -93,7 +93,7 @@ export const CustomTabBar: React.FC<TabBarProps> = ({ state, navigation }) => {
       >
         <IconComponent size={22} color={color} />
         <Typography
-          variant='label'
+          variant='body'
           weight={isFocused ? 'semibold' : 'medium'}
           style={{ color }}
         >

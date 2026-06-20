@@ -32,7 +32,7 @@ export const colors = {
     secondary: '#22222b', // Card backgrounds
     tertiary: '#2a2a34', // Elevated surfaces
     border: 'rgba(255, 255, 255, 0.08)', // Subtle dividers
-    tabBar: 'rgba(58, 60, 72, 0.55)', // Floating tab bar — lighter grey, translucent
+    tabBar: 'rgba(58, 60, 72, 0.92)', // Floating tab bar — lighter grey, mostly opaque
     tabBarBorder: 'rgba(255, 255, 255, 0.10)', // Hairline along the tab bar's top edge
   },
 
