@@ -1,5 +1,5 @@
 import React from 'react';
-import { TouchableOpacity, View, ViewStyle } from 'react-native';
+import { TouchableOpacity, View, ViewStyle, TextStyle } from 'react-native';
 import { Check } from 'lucide-react-native';
 import { useTheme } from '../../theme/ThemeProvider';
 import { Typography } from './Typography';
@@ -13,6 +13,8 @@ interface ChipProps {
   equalWidth?: boolean;
   /** `split` uses outlined chips for expense participant pickers. */
   variant?: 'default' | 'split';
+  /** Override the label text style (e.g. larger/bolder font). */
+  labelStyle?: TextStyle;
   onPress?: () => void;
   style?: ViewStyle;
 }
@@ -24,6 +26,7 @@ export const Chip: React.FC<ChipProps> = ({
   showCheckWhenSelected = true,
   equalWidth = false,
   variant = 'default',
+  labelStyle,
   onPress,
   style,
 }) => {
@@ -85,6 +88,7 @@ export const Chip: React.FC<ChipProps> = ({
             color: selected
               ? theme.colors.text.primary
               : theme.colors.text.secondary,
+            ...labelStyle,
           }}
         >
           {label}

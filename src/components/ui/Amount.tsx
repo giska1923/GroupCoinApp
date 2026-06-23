@@ -11,6 +11,7 @@ type AmountVariant =
   | 'large'
   | 'small'
   | 'display'
+  | 'displayLg'
   | 'hero'
   | 'detail'
   | 'detailLg';
@@ -78,6 +79,12 @@ export const Amount: React.FC<AmountProps> = ({
         return {
           fontSize: theme.fontSize['2xl'],
           lineHeight: theme.fontSize['2xl'] * 1.25,
+          fontWeight: theme.fontWeight.bold,
+        };
+      case 'displayLg':
+        return {
+          fontSize: theme.fontSize['4xl'],
+          lineHeight: theme.fontSize['4xl'] * 1.2,
           fontWeight: theme.fontWeight.bold,
         };
       case 'hero':

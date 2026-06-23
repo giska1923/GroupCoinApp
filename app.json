@@ -4,27 +4,27 @@
     "slug": "groupcoin-mobile",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
+    "icon": "./assets/logo.png",
     "userInterfaceStyle": "dark",
     "scheme": "groupcoin",
     "platforms": ["ios", "android"],
+    "splash": {
+      "image": "./assets/nobg.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#000000"
+    },
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.groupcoin.mobile"
     },
     "android": {
       "adaptiveIcon": {
-        "backgroundColor": "#0f0f23",
-        "foregroundImage": "./assets/android-icon-foreground.png",
-        "backgroundImage": "./assets/android-icon-background.png",
+        "backgroundColor": "#000000",
+        "foregroundImage": "./assets/nobg.png",
         "monochromeImage": "./assets/android-icon-monochrome.png"
       },
       "package": "com.groupcoin.mobile",
       "predictiveBackGestureEnabled": false
-    },
-    "web": {
-      "favicon": "./assets/favicon.png",
-      "bundler": "metro"
     },
     "plugins": ["expo-router"],
     "experiments": {

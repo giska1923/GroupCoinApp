@@ -65,8 +65,12 @@ export const GroupBalanceSummary: React.FC<GroupBalanceSummaryProps> = ({
       : 'Overall, you owe';
 
   return (
-    <Card variant='elevated' padding='lg' style={{ alignItems: 'center' }}>
-      <Typography variant='caption' color='secondary'>
+    <Card
+      variant='elevated'
+      padding='xl'
+      style={{ alignItems: 'center', paddingVertical: theme.spacing['2xl'] }}
+    >
+      <Typography variant='subheading' weight='semibold' color='secondary'>
         {label}
       </Typography>
 
@@ -74,7 +78,7 @@ export const GroupBalanceSummary: React.FC<GroupBalanceSummaryProps> = ({
         <Amount
           value={primary.amount}
           currency={primary.currency}
-          variant='display'
+          variant='displayLg'
           showSign={false}
         />
       ) : (

@@ -9,12 +9,12 @@ export default ({ config }: ConfigContext): ExpoConfig => {
     slug: 'groupcoin-mobile',
     version: '1.0.0',
     orientation: 'portrait',
-    icon: './assets/icon.png',
+    icon: './assets/logo.png',
     userInterfaceStyle: 'automatic',
     splash: {
-      image: './assets/splash-icon.png',
+      image: './assets/nobg.png',
       resizeMode: 'contain',
-      backgroundColor: '#0ea5e9',
+      backgroundColor: '#000000',
     },
     assetBundlePatterns: ['**/*'],
     ios: {
@@ -23,14 +23,11 @@ export default ({ config }: ConfigContext): ExpoConfig => {
     },
     android: {
       adaptiveIcon: {
-        foregroundImage: './assets/android-icon-foreground.png',
-        backgroundImage: './assets/android-icon-background.png',
+        foregroundImage: './assets/nobg.png',
+        backgroundColor: '#000000',
         monochromeImage: './assets/android-icon-monochrome.png',
       },
       package: getBundleId(appEnv),
-    },
-    web: {
-      favicon: './assets/favicon.png',
     },
     plugins: ['expo-router', 'expo-secure-store'],
     extra: {

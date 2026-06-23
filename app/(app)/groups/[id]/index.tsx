@@ -125,6 +125,7 @@ export default function GroupDetailScreen() {
       <View style={{ paddingHorizontal: theme.spacing.lg }}>
         <Header
           title={group.data?.name ?? 'Group'}
+          titleStyle={{ fontSize: theme.fontSize['2xl'] }}
           right={
             <TouchableOpacity
               onPress={() => setSettingsOpen(true)}
@@ -144,40 +145,39 @@ export default function GroupDetailScreen() {
         />
       </View>
 
-      <Column
-        gap='lg'
-        style={{
-          paddingHorizontal: theme.spacing.lg,
-          paddingBottom: theme.spacing.lg,
-        }}
-      >
-        <GroupBalanceSummary
-          groupId={groupId}
-          currency={currency}
-          onSettleUp={() => setSettleUpOpen(true)}
-          onAddExpense={goToAddExpense}
-        />
+      <Column gap='lg' style={{ paddingBottom: theme.spacing.lg }}>
+        {/* Margins mirror the Expenses screen: summary at lg, list at xl. */}
+        <View style={{ paddingHorizontal: theme.spacing.lg }}>
+          <GroupBalanceSummary
+            groupId={groupId}
+            currency={currency}
+            onSettleUp={() => setSettleUpOpen(true)}
+            onAddExpense={goToAddExpense}
+          />
+        </View>
 
-        <QueryView
-          query={expenses}
-          isEmpty={data => data.length === 0}
-          emptyTitle='No expenses yet'
-          emptyMessage='Add the first expense to start tracking who owes what.'
-          emptyIcon={<Receipt size={48} color={theme.colors.text.muted} />}
-        >
-          {(list: ExpenseDTO[]) => (
-            <Column gap='md'>
-              {list.map(expense => (
-                <ExpenseRow
-                  key={expense.id}
-                  expense={expense}
-                  currency={currency}
-                  members={members.data}
-                />
-              ))}
-            </Column>
-          )}
-        </QueryView>
+        <View style={{ paddingHorizontal: theme.spacing.xl }}>
+          <QueryView
+            query={expenses}
+            isEmpty={data => data.length === 0}
+            emptyTitle='No expenses yet'
+            emptyMessage='Add the first expense to start tracking who owes what.'
+            emptyIcon={<Receipt size={48} color={theme.colors.text.muted} />}
+          >
+            {(list: ExpenseDTO[]) => (
+              <Column gap='md'>
+                {list.map(expense => (
+                  <ExpenseRow
+                    key={expense.id}
+                    expense={expense}
+                    currency={currency}
+                    members={members.data}
+                  />
+                ))}
+              </Column>
+            )}
+          </QueryView>
+        </View>
       </Column>
 
       <Sheet

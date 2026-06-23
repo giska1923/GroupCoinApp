@@ -109,7 +109,7 @@ export default function AddExpenseScreen() {
 
   const fieldTextStyle = {
     color: theme.colors.text.primary,
-    fontSize: theme.fontSize['3xl'],
+    fontSize: theme.fontSize['3xl'] + 2,
     fontWeight: theme.fontWeight.bold,
     paddingVertical: theme.spacing.sm,
     borderBottomWidth: 1,
@@ -175,7 +175,7 @@ export default function AddExpenseScreen() {
                   variant='display'
                   color='muted'
                   style={{
-                    fontSize: theme.fontSize['4xl'],
+                    fontSize: theme.fontSize['5xl'],
                   }}
                 >
                   {currencySymbol(currency)}
@@ -189,7 +189,7 @@ export default function AddExpenseScreen() {
                   selectionColor={theme.colors.brand[400]}
                   style={{
                     color: theme.colors.text.primary,
-                    fontSize: 56,
+                    fontSize: 60,
                     fontWeight: theme.fontWeight.bold,
                     minWidth: 200,
                     textAlign: 'center',
@@ -221,6 +221,10 @@ export default function AddExpenseScreen() {
                       onPress={() => toggle(member.userId)}
                       variant='split'
                       equalWidth
+                      labelStyle={{
+                        fontSize: theme.fontSize.md,
+                        fontWeight: theme.fontWeight.bold,
+                      }}
                     />
                   ))}
                   <Chip
@@ -230,6 +234,10 @@ export default function AddExpenseScreen() {
                     variant='split'
                     equalWidth
                     showCheckWhenSelected={false}
+                    labelStyle={{
+                      fontSize: theme.fontSize.md,
+                      fontWeight: theme.fontWeight.bold,
+                    }}
                   />
                 </Row>
               )}
@@ -246,14 +254,14 @@ export default function AddExpenseScreen() {
                     color='primary'
                     weight='bold'
                     align='center'
-                    style={{ fontSize: theme.fontSize['2xl'] }}
+                    style={{ fontSize: theme.fontSize['3xl'] }}
                   >
                     Each pays{' '}
                     <Typography
                       variant='heading'
                       color='accent'
                       weight='bold'
-                      style={{ fontSize: theme.fontSize['2xl'] }}
+                      style={{ fontSize: theme.fontSize['3xl'] }}
                     >
                       {formatMoneyLabel(perPerson, currency)}
                     </Typography>
@@ -262,7 +270,12 @@ export default function AddExpenseScreen() {
               )}
 
               {errorMessage && (
-                <Typography variant='caption' color='negative' align='center'>
+                <Typography
+                  variant='body'
+                  weight='medium'
+                  color='negative'
+                  align='center'
+                >
                   {errorMessage}
                 </Typography>
               )}

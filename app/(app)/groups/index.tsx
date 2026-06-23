@@ -73,7 +73,7 @@ export default function GroupsScreen() {
             color='primary'
             weight='medium'
             align='center'
-            style={{ marginBottom: theme.spacing.sm }}
+            style={{ marginBottom: theme.spacing.sm, opacity: 0.8 }}
           >
             Net Flow
           </Typography>

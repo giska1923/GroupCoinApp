@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, TouchableOpacity, ViewStyle } from 'react-native';
+import { View, TouchableOpacity, ViewStyle, TextStyle } from 'react-native';
 import { router } from 'expo-router';
 import { ChevronLeft, X } from 'lucide-react-native';
 import { useTheme } from '../../theme/ThemeProvider';
@@ -16,6 +16,8 @@ interface HeaderProps {
   right?: React.ReactNode;
   align?: 'left' | 'center';
   style?: ViewStyle;
+  /** Override the title text style (e.g. a larger font). */
+  titleStyle?: TextStyle;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -27,6 +29,7 @@ export const Header: React.FC<HeaderProps> = ({
   right,
   align = 'center',
   style,
+  titleStyle,
 }) => {
   const theme = useTheme();
 
@@ -45,6 +48,9 @@ export const Header: React.FC<HeaderProps> = ({
         justifyContent: 'space-between',
         gap: theme.spacing.md,
         paddingVertical: theme.spacing.md,
+        // Keep a constant header height whether or not a leading/right control
+        // is present, so the title/logo lands in the same spot on every page.
+        minHeight: 40 + theme.spacing.md * 2,
         ...style,
       }}
     >
@@ -79,8 +85,14 @@ export const Header: React.FC<HeaderProps> = ({
             color={titleTone === 'brand' ? 'accent' : 'primary'}
             weight={titleTone === 'brand' ? 'bold' : 'semibold'}
             numberOfLines={1}
+            style={{
+              ...(titleTone === 'brand'
+                ? { fontFamily: 'Outfit_700Bold' }
+                : {}),
+              ...titleStyle,
+            }}
           >
-            {title}
+            {titleTone === 'brand' ? title.toLowerCase() : title}
           </Typography>
         )}
         {subtitle && (

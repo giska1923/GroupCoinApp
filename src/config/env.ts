@@ -9,7 +9,7 @@ interface AppConfig {
 
 const extra = (Constants.expoConfig?.extra ?? {}) as Partial<AppConfig>;
 
-const DEV_API_URL = '192.168.1.117';
+const DEV_API_URL: string = '192.168.1.117';
 const DEFAULT_DEV_API_PORT = '3000';
 
 /** Metro dev-server host (e.g. 192.168.1.117 from exp://192.168.1.117:8081). */

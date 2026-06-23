@@ -126,7 +126,9 @@ export const Typography: React.FC<TypographyProps> = ({
   };
 
   return (
-    <Text style={finalStyle} {...props}>
+    // Lock font scaling so the layout stays identical regardless of each
+    // device's system font-size setting. Callers can still override via props.
+    <Text allowFontScaling={false} style={finalStyle} {...props}>
       {children}
     </Text>
   );

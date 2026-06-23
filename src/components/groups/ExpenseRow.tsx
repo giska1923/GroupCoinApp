@@ -59,25 +59,25 @@ export const ExpenseRow: React.FC<ExpenseRowProps> = ({
       style={{ overflow: 'hidden' }}
     >
       <View style={{ flexDirection: 'row', alignItems: 'stretch' }}>
-        <Column gap='sm' style={{ flex: 1, padding: theme.spacing.xl }}>
-          <Typography variant='heading' weight='bold'>
+        <Column gap='xs' style={{ flex: 1, padding: theme.spacing.lg }}>
+          <Typography variant='heading' weight='bold' numberOfLines={1}>
             {expense.description}
           </Typography>
-          <Typography variant='subheading' color='secondary'>
+          <Typography variant='subheading' color='secondary' numberOfLines={1}>
             {payerName} paid {formatMoneyLabel(expense.amount, currency)}
           </Typography>
           {detailLoading ? (
             <Spinner size='small' style={{ alignItems: 'flex-start' }} />
           ) : detailFailed ? (
-            <Typography variant='body' color='muted'>
+            <Typography variant='body' color='muted' numberOfLines={1}>
               Could not load your share
             </Typography>
           ) : (
-            <Typography variant='subheading' color='secondary'>
+            <Typography variant='subheading' color='secondary' numberOfLines={1}>
               Your share: {formatMoneyLabel(yourShare, currency)}
             </Typography>
           )}
-          <Typography variant='body' color='muted'>
+          <Typography variant='body' color='muted' numberOfLines={1}>
             {formatShortDate(expense.expenseDate)}
           </Typography>
         </Column>
@@ -85,21 +85,24 @@ export const ExpenseRow: React.FC<ExpenseRowProps> = ({
         <Column
           justify='center'
           align='center'
-          gap='sm'
+          gap='xs'
           style={{
-            width: 148,
-            paddingHorizontal: theme.spacing.lg,
+            // Proportional width so the split looks consistent on every screen
+            // size; a fixed pixel width takes a different share on each device.
+            width: '38%',
+            paddingHorizontal: theme.spacing.md,
             backgroundColor: !involved
               ? theme.colors.surface.tertiary
               : positive
-                ? theme.colors.success.bg
-                : theme.colors.error.bg,
+                ? '#06392b' // deepened green (text stays bright)
+                : '#591414', // deepened red (text stays bright)
           }}
         >
           <Typography
             variant='subheading'
             weight='semibold'
             align='center'
+            numberOfLines={1}
             style={{
               color: !involved
                 ? theme.colors.text.muted

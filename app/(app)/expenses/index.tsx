@@ -45,7 +45,7 @@ export default function ExpensesScreen() {
       <Section
         title='Recent expenses'
         style={{
-          paddingHorizontal: theme.spacing.lg,
+          paddingHorizontal: theme.spacing.xl,
           paddingTop: theme.spacing.xl,
           paddingBottom: theme.spacing.lg,
         }}
