@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, ScrollView } from 'react-native';
+import { View } from 'react-native';
 import { router } from 'expo-router';
 import { Users } from 'lucide-react-native';
 import { useTheme } from '../../../src/theme/ThemeProvider';
@@ -10,8 +10,7 @@ import {
   Typography,
   Card,
   Amount,
-  GroupAvatar,
-  ListItem,
+  Button,
 } from '../../../src/components/ui';
 import {
   Spinner,
@@ -40,6 +39,22 @@ export default function GroupsScreen() {
     : isNegativeAmount(netFlow)
       ? 'negative'
       : 'neutral';
+
+  // Darker neutral fill + subtle neutral border, lifted by our signature soft
+  // purple glow (same recipe as the Settle Up / Add expense buttons).
+  // NOTE: the fill is OPAQUE (not translucent) so the elevation shadow can't
+  // bleed through as a dark inner rectangle — it reads identically over the
+  // near-black screen.
+  const groupButtonStyle = {
+    backgroundColor: 'rgb(20, 20, 26)',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.14)',
+    shadowColor: theme.colors.brand[400],
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.55,
+    shadowRadius: 12,
+    elevation: 8,
+  } as const;
 
   return (
     <Screen
@@ -144,78 +159,37 @@ export default function GroupsScreen() {
           action={{ label: 'Create group', onPress: () => router.push('/(app)/groups/new') }}
         />
       ) : (
-        <>
-          <Section
-            title='Popular Groups'
-            style={{ paddingHorizontal: theme.spacing.lg }}
-          >
-            <ScrollView
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              contentContainerStyle={{
-                paddingHorizontal: theme.spacing.sm,
-                gap: theme.spacing.md,
-              }}
-            >
-              {groups.map(group => (
-                <Card
-                  key={group.id}
-                  variant='elevated'
-                  padding='md'
-                  style={{
-                    minWidth: 120,
-                    alignItems: 'center',
-                  }}
-                >
-                  <GroupAvatar
-                    name={group.name}
-                    memberCount={group.memberCount}
-                    status='active'
-                    size='lg'
-                    onPress={() => router.push(`/(app)/groups/${group.id}`)}
-                  />
-                </Card>
-              ))}
-            </ScrollView>
-          </Section>
-
-          <Section
-            title='Your groups'
-            style={{
-              paddingHorizontal: theme.spacing.lg,
-              paddingTop: theme.spacing.xl,
-              paddingBottom: theme.spacing.lg,
-            }}
-          >
-            <Card variant='default' padding='none'>
-              {groups.map((group, index) => (
-                <ListItem
-                  key={group.id}
-                  title={group.name}
-                  subtitle={
-                    [
-                      group.memberCount != null
-                        ? `${group.memberCount} members`
-                        : null,
-                      group.expenseCount != null
-                        ? `${group.expenseCount} expenses`
-                        : null,
-                    ]
-                      .filter(Boolean)
-                      .join(' · ') || undefined
-                  }
-                  leading={
-                    <Typography variant='body' weight='semibold' color='accent'>
-                      {group.name.slice(0, 1).toUpperCase()}
-                    </Typography>
-                  }
-                  divider={index < groups.length - 1}
-                  onPress={() => router.push(`/(app)/groups/${group.id}`)}
-                />
-              ))}
-            </Card>
-          </Section>
-        </>
+        <Section
+          title='Your Groups'
+          style={{
+            paddingHorizontal: theme.spacing.lg,
+            paddingTop: theme.spacing.xl,
+            paddingBottom: theme.spacing.lg,
+          }}
+        >
+          <View style={{ gap: theme.spacing.md }}>
+            {groups.map(group => (
+              <Button
+                key={group.id}
+                variant='secondary'
+                size='lg'
+                fullWidth
+                textColor={theme.colors.text.primary}
+                textWeight='bold'
+                textStyle={{ fontSize: theme.fontSize['2xl'] }}
+                style={{
+                  ...groupButtonStyle,
+                  // Match the card size & shape used on the Expenses/Group screens.
+                  height: 104,
+                  borderRadius: theme.components.card.radius,
+                }}
+                onPress={() => router.push(`/(app)/groups/${group.id}`)}
+              >
+                {group.name}
+              </Button>
+            ))}
+          </View>
+        </Section>
       )}
     </Screen>
   );

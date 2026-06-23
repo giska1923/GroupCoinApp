@@ -3,6 +3,7 @@ import {
   TouchableOpacity,
   TouchableOpacityProps,
   ViewStyle,
+  TextStyle,
   ActivityIndicator,
   View,
 } from 'react-native';
@@ -30,6 +31,8 @@ interface ButtonProps extends Omit<TouchableOpacityProps, 'style'> {
   textColor?: string;
   /** Overrides the label font weight (defaults to 'medium'). */
   textWeight?: React.ComponentProps<typeof Typography>['weight'];
+  /** Extra style merged into the label (e.g. fontSize overrides). */
+  textStyle?: TextStyle;
   style?: ViewStyle;
   children?: React.ReactNode;
 }
@@ -44,6 +47,7 @@ export const Button: React.FC<ButtonProps> = ({
   fullWidth = false,
   textColor,
   textWeight = 'medium',
+  textStyle,
   style,
   disabled,
   children,
@@ -174,7 +178,7 @@ export const Button: React.FC<ButtonProps> = ({
           <Typography
             variant='body'
             weight={textWeight}
-            style={{ color: getTextColor() }}
+            style={{ color: getTextColor(), ...textStyle }}
           >
             {children}
           </Typography>
