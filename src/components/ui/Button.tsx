@@ -144,6 +144,24 @@ export const Button: React.FC<ButtonProps> = ({
     }
   };
 
+  // The loading background mirrors the muted text color for filled variants, so
+  // the spinner can't reuse getTextColor() (muted) or it vanishes into the
+  // button — leaving a blank grey box. Pick a color that contrasts the bg.
+  const getSpinnerColor = () => {
+    if (textColor) return textColor;
+
+    switch (variant) {
+      case 'primary':
+      case 'destructive':
+      case 'secondary':
+        return theme.colors.text.primary;
+      case 'outline':
+        return theme.colors.brand[500];
+      case 'ghost':
+        return theme.colors.text.secondary;
+    }
+  };
+
   const finalStyle: ViewStyle = {
     ...getVariantStyle(),
     ...getSizeStyle(),
@@ -158,7 +176,7 @@ export const Button: React.FC<ButtonProps> = ({
 
   const renderContent = () => {
     if (loading) {
-      return <ActivityIndicator size='small' color={getTextColor()} />;
+      return <ActivityIndicator size='small' color={getSpinnerColor()} />;
     }
 
     if (size === 'fab') {
