@@ -1,9 +1,10 @@
 import React from 'react';
+import { View } from 'react-native';
 import { useTheme } from '../../theme/ThemeProvider';
 import { useAuthStore } from '../../stores/auth.store';
 import { useBalances } from '../../hooks/useBalances';
 import { Column, Row } from '../layout/Row';
-import { Typography, Card, Amount, Button } from '../ui';
+import { Typography, Amount, Button } from '../ui';
 import { Spinner, ErrorState } from '../feedback';
 import {
   isPositiveAmount,
@@ -32,9 +33,9 @@ export const GroupBalanceSummary: React.FC<GroupBalanceSummaryProps> = ({
 
   if (balances.isLoading) {
     return (
-      <Card variant='elevated' padding='lg' style={{ alignItems: 'center' }}>
+      <View style={{ alignItems: 'center', paddingVertical: theme.spacing.lg }}>
         <Spinner size='small' />
-      </Card>
+      </View>
     );
   }
 
@@ -64,13 +65,28 @@ export const GroupBalanceSummary: React.FC<GroupBalanceSummaryProps> = ({
       ? 'Overall, you are owed'
       : 'Overall, you owe';
 
+  // Darker neutral translucent fill + subtle neutral border, lifted by our
+  // signature soft purple glow (same hue as the FAB halo).
+  const actionButtonStyle = {
+    backgroundColor: 'rgba(20, 20, 26, 0.55)',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.14)',
+    shadowColor: theme.colors.brand[400],
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.55,
+    shadowRadius: 12,
+    elevation: 8,
+  } as const;
+
   return (
-    <Card
-      variant='elevated'
-      padding='xl'
-      style={{ alignItems: 'center', paddingVertical: theme.spacing['2xl'] }}
-    >
-      <Typography variant='subheading' weight='semibold' color='secondary'>
+    <View style={{ alignItems: 'center', paddingVertical: theme.spacing.lg }}>
+      <Typography
+        variant='subheading'
+        color='primary'
+        weight='medium'
+        align='center'
+        style={{ marginBottom: theme.spacing.sm, opacity: 0.8 }}
+      >
         {label}
       </Typography>
 
@@ -78,8 +94,8 @@ export const GroupBalanceSummary: React.FC<GroupBalanceSummaryProps> = ({
         <Amount
           value={primary.amount}
           currency={primary.currency}
-          variant='displayLg'
-          showSign={false}
+          variant='hero'
+          glow={!settled}
         />
       ) : (
         <Column gap='xs' style={{ alignItems: 'center', marginTop: theme.spacing.xs }}>
@@ -88,8 +104,7 @@ export const GroupBalanceSummary: React.FC<GroupBalanceSummaryProps> = ({
               <Amount
                 value={entry.amount}
                 currency={entry.currency}
-                variant='large'
-                showSign={false}
+                variant='display'
               />
               <Typography variant='caption' color='muted'>
                 {entry.currency}
@@ -100,19 +115,35 @@ export const GroupBalanceSummary: React.FC<GroupBalanceSummaryProps> = ({
       )}
 
       {(onSettleUp || onAddExpense) && (
-        <Row justify='center' gap='md' style={{ marginTop: theme.spacing.md }}>
+        <Row justify='center' gap='md' style={{ marginTop: theme.spacing.lg }}>
           {onSettleUp && (
-            <Button variant='primary' size='md' rounded onPress={onSettleUp}>
+            <Button
+              variant='secondary'
+              size='md'
+              rounded
+              textColor={theme.colors.text.primary}
+              textWeight='bold'
+              style={actionButtonStyle}
+              onPress={onSettleUp}
+            >
               Settle Up
             </Button>
           )}
           {onAddExpense && (
-            <Button variant='primary' size='md' rounded onPress={onAddExpense}>
+            <Button
+              variant='secondary'
+              size='md'
+              rounded
+              textColor={theme.colors.text.primary}
+              textWeight='bold'
+              style={actionButtonStyle}
+              onPress={onAddExpense}
+            >
               Add expense
             </Button>
           )}
         </Row>
       )}
-    </Card>
+    </View>
   );
 };

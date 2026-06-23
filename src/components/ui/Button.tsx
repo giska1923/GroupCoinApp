@@ -28,6 +28,8 @@ interface ButtonProps extends Omit<TouchableOpacityProps, 'style'> {
   fullWidth?: boolean;
   /** Overrides the variant's default label/icon color. */
   textColor?: string;
+  /** Overrides the label font weight (defaults to 'medium'). */
+  textWeight?: React.ComponentProps<typeof Typography>['weight'];
   style?: ViewStyle;
   children?: React.ReactNode;
 }
@@ -41,6 +43,7 @@ export const Button: React.FC<ButtonProps> = ({
   rounded = false,
   fullWidth = false,
   textColor,
+  textWeight = 'medium',
   style,
   disabled,
   children,
@@ -170,7 +173,7 @@ export const Button: React.FC<ButtonProps> = ({
         {children && (
           <Typography
             variant='body'
-            weight='medium'
+            weight={textWeight}
             style={{ color: getTextColor() }}
           >
             {children}
