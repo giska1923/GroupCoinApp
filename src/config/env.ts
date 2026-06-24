@@ -9,49 +9,56 @@ interface AppConfig {
 
 const extra = (Constants.expoConfig?.extra ?? {}) as Partial<AppConfig>;
 
-const DEV_API_URL: string = '192.168.1.117';
 const DEFAULT_DEV_API_PORT = '3000';
 
-/** Metro dev-server host (e.g. 192.168.1.117 from exp://192.168.1.117:8081). */
-function hasMetroHost(): boolean {
-  const hostUri = Constants.expoConfig?.hostUri;
-  return !!hostUri;
+/** Removes trailing slashes so the base URL concatenates predictably with paths. */
+function normalizeUrl(url: string): string {
+  return url.trim().replace(/\/+$/, '');
 }
 
 /**
- * Resolves the API base URL. In dev, prefer the Metro host so the app always
- * targets the same machine as the bundler (avoids stale 10.0.2.2 / localhost in extra).
+ * Host of the machine running the Metro bundler, parsed from Expo's hostUri
+ * (e.g. "192.168.1.117:8081" -> "192.168.1.117"). Lets a physical device in dev
+ * reach the backend on the bundler's machine without hardcoding a LAN IP.
+ */
+function getMetroHost(): string | null {
+  const hostUri =
+    Constants.expoConfig?.hostUri ??
+    (Constants.expoGoConfig as { debuggerHost?: string } | null)?.debuggerHost;
+  if (!hostUri) return null;
+  // Strip an optional scheme ("exp://") and the ":port" suffix.
+  const host = hostUri.replace(/^[a-z]+:\/\//i, '').split(':')[0];
+  return host || null;
+}
+
+/**
+ * Resolves the API base URL, in order of precedence:
+ *   1. EXPO_PUBLIC_API_URL — explicit override, honored in every build.
+ *   2. Dev — the Metro bundler's host, so a device/emulator hits your local backend.
+ *   3. extra.apiUrl — the per-environment URL baked in by app.config.ts
+ *      (e.g. https://groupcoin.onrender.com in prod).
+ *   4. Localhost fallbacks.
  */
 function resolveApiUrl(): string {
   const explicit = process.env.EXPO_PUBLIC_API_URL;
   if (explicit) {
-    return explicit.replace(/\/$/, '');
+    return normalizeUrl(explicit);
   }
 
   if (__DEV__) {
-    if (hasMetroHost()) {
-      const isAndroidEmulator =
-        Platform.OS === 'android' &&
-        !Constants.isDevice &&
-        (DEV_API_URL === 'localhost' || DEV_API_URL === '127.0.0.1');
-
-      if (isAndroidEmulator) {
-        return `http://10.0.2.2:${DEFAULT_DEV_API_PORT}`;
-      }
-
-      return `http://${DEV_API_URL}:${DEFAULT_DEV_API_PORT}`;
+    const metroHost = getMetroHost();
+    if (metroHost) {
+      return `http://${metroHost}:${DEFAULT_DEV_API_PORT}`;
     }
+    // The Android emulator reaches the host machine via 10.0.2.2, not localhost.
+    if (Platform.OS === 'android' && !Constants.isDevice) {
+      return `http://10.0.2.2:${DEFAULT_DEV_API_PORT}`;
+    }
+    return `http://localhost:${DEFAULT_DEV_API_PORT}`;
   }
 
   if (extra.apiUrl) {
-    let url = String(extra.apiUrl).replace(/\/$/, '');
-    if (
-      hasMetroHost() &&
-      (url.includes('localhost') || url.includes('127.0.0.1'))
-    ) {
-      url = url.replace(/localhost|127\.0\.0\.1/g, DEV_API_URL);
-    }
-    return url;
+    return normalizeUrl(String(extra.apiUrl));
   }
 
   if (Platform.OS === 'android' && !Constants.isDevice) {
@@ -65,6 +72,12 @@ export const env: AppConfig = {
   apiUrl: resolveApiUrl(),
   appEnv: extra.appEnv ?? 'dev',
 };
+
+if (__DEV__) {
+  // Surfaces the resolved base URL in the Metro console so connection issues
+  // are easy to diagnose. Remove once the connection is confirmed working.
+  console.log('[env] apiUrl =', env.apiUrl);
+}
 
 // Environment checks
 export const isDev = env.appEnv === 'dev';

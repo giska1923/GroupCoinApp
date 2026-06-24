@@ -5,7 +5,9 @@ import { mapAxiosError } from './errors';
 
 export const apiClient = axios.create({
   baseURL: env.apiUrl,
-  timeout: 15_000,
+  // Generous timeout to tolerate Render free-tier cold starts (~30s spin-up
+  // after inactivity) on the first request.
+  timeout: 30_000,
   headers: { 'Content-Type': 'application/json' },
 });
 

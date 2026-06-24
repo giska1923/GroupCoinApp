@@ -52,11 +52,18 @@ function getBundleId(env: string): string {
 }
 
 function getApiUrl(env: string): string {
+  // A build-time override always wins, regardless of environment.
+  const override = process.env.EXPO_PUBLIC_API_URL;
+  if (override) {
+    return override;
+  }
+
   switch (env) {
     case 'prod':
-      return 'https://api.groupcoin.com';
     case 'staging':
-      return 'https://staging-api.groupcoin.com';
+      // Single Render deployment serves both tiers for now; split this out
+      // once a dedicated staging service exists.
+      return 'https://groupcoin.onrender.com';
     default:
       return 'http://localhost:3000';
   }
