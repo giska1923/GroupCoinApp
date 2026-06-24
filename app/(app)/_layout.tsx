@@ -4,7 +4,7 @@ import { Tabs, Redirect } from 'expo-router';
 import { useAuthStore } from '../../src/stores/auth.store';
 import { useTheme } from '../../src/theme/ThemeProvider';
 import { Spinner } from '../../src/components/feedback';
-import { useInvitationsRealtime } from '../../src/hooks';
+import { useInvitationsRealtime, usePushNotifications } from '../../src/hooks';
 import {
   CustomTabBar,
   type TabBarProps,
@@ -16,6 +16,7 @@ export default function AppLayout() {
   const status = useAuthStore(s => s.status);
 
   useInvitationsRealtime();
+  usePushNotifications();
 
   // Still reading the persisted session — hold before deciding.
   if (status === 'loading') {

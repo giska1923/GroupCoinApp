@@ -1,4 +1,5 @@
 import { View } from 'react-native';
+import { useEffect } from 'react';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { QueryClientProvider } from '@tanstack/react-query';
@@ -15,8 +16,13 @@ import {
 import { ThemeProvider } from '../src/theme/ThemeProvider';
 import { colors } from '../src/theme/tokens';
 import { queryClient } from '../src/api/queryClient';
+import { configureForegroundNotificationHandler } from '../src/notifications';
 
 export default function RootLayout() {
+  useEffect(() => {
+    void configureForegroundNotificationHandler();
+  }, []);
+
   // Outfit is used only for the brand logo wordmark; the rest of the app keeps
   // the system font. Hold the first render until the font is ready so the logo
   // doesn't flash in a fallback face.

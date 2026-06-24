@@ -36,3 +36,5 @@ export {
 } from './useAggregates';
 export type { SplitContact } from './useAggregates';
 export { useSubmitFeedback } from './useFeedback';
+export { usePushNotifications } from './usePushNotifications';
+export { useNotificationSettings } from './useNotificationSettings';

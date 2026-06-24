@@ -9,6 +9,7 @@ export interface UserDTO {
   email: string;
   contact: string | null;
   role: 'BASIC' | 'MID' | 'PREMIUM';
+  notificationsEnabled?: boolean;
   createdAt: string;
   updatedAt: string;
 }
@@ -201,6 +202,32 @@ export interface UpdateUserPayload {
   name?: string;
   email?: string;
   contact?: string;
+  notificationsEnabled?: boolean;
+}
+
+export type PushPlatform = 'ios' | 'android';
+
+export interface RegisterDeviceTokenPayload {
+  token: string;
+  platform: PushPlatform;
+}
+
+export interface DeviceTokenDTO {
+  id: string;
+  userId: string;
+  token: string;
+  platform: PushPlatform;
+  createdAt: string;
+}
+
+/** Payload `data` keys the backend should attach to push notifications. */
+export type PushNotificationType = 'GROUP_INVITATION' | 'EXPENSE_CREATED';
+
+export interface PushNotificationData {
+  type: PushNotificationType;
+  groupId?: string;
+  invitationId?: string;
+  expenseId?: string;
 }
 
 export type FeedbackTopic = 'Bug' | 'Feature' | 'General';

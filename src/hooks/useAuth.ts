@@ -2,6 +2,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { authApi } from '../api/resources';
 import { queryKeys } from '../api/queryClient';
 import { useAuthStore } from '../stores/auth.store';
+import { unregisterPushTokenForLogout } from '../notifications/session';
 import type { LoginPayload, RegisterPayload } from '../types/api';
 
 /** Validates the persisted token against the backend (GET /auth/me). */
@@ -39,6 +40,7 @@ export const useLogout = () => {
   const clearSession = useAuthStore(s => s.clearSession);
   const qc = useQueryClient();
   return async () => {
+    await unregisterPushTokenForLogout();
     await clearSession();
     qc.clear();
   };

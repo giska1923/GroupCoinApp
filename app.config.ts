@@ -29,10 +29,23 @@ export default ({ config }: ConfigContext): ExpoConfig => {
       },
       package: getBundleId(appEnv),
     },
-    plugins: ['expo-router', 'expo-secure-store'],
+    plugins: [
+      'expo-router',
+      'expo-secure-store',
+      [
+        'expo-notifications',
+        {
+          defaultChannel: 'groupcoin-default',
+          enableBackgroundRemoteNotifications: true,
+        },
+      ],
+    ],
     extra: {
       apiUrl: getApiUrl(appEnv),
       appEnv,
+      eas: {
+        projectId: process.env.EAS_PROJECT_ID,
+      },
     },
   } as ExpoConfig;
 

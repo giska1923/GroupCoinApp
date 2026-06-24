@@ -63,10 +63,10 @@ const SECTIONS = [
     bullets: [
       'Secure storage — used to keep your sign-in session protected on your device using platform security features such as the iOS Keychain and Android encrypted storage.',
       'Network access — required to sign in, sync your groups, and receive real-time updates such as group invitations.',
+      'Notifications — when you turn on Group Notifications, the app asks your device for permission and registers your phone to receive alerts about group invitations and expenses that involve you, even when the app is closed. You can turn this off anytime from your account settings or device settings.',
     ],
     body: [
       'GroupCoin does not request access to your photo library, camera, microphone, contacts, or location for normal use.',
-      'Notifications — if enabled in a future version, notifications would be used only for group-related alerts you choose to receive, such as invitations or activity updates. Notification preferences can be managed from your device settings.',
     ],
   },
   {

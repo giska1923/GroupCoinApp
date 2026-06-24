@@ -30,6 +30,7 @@ import {
   useLogout,
   useSplitContacts,
   useDeleteUser,
+  useNotificationSettings,
 } from '../../../src/hooks';
 import { useAuthStore } from '../../../src/stores/auth.store';
 import { ClientError } from '../../../src/api/errors';
@@ -44,7 +45,12 @@ const initialsOf = (name?: string) =>
 
 export default function AccountScreen() {
   const theme = useTheme();
-  const [notifications, setNotifications] = useState(true);
+  const {
+    enabled: notifications,
+    ready: notificationsReady,
+    isUpdating: notificationsUpdating,
+    toggle: toggleNotifications,
+  } = useNotificationSettings();
   const [menuOpen, setMenuOpen] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
   const [privacyOpen, setPrivacyOpen] = useState(false);
@@ -156,9 +162,14 @@ export default function AccountScreen() {
         <Card variant='default' padding='none'>
           <ListItem
             title='Group Notifications'
+            subtitle='Alerts for invitations and expenses you are part of'
             leading={<Bell size={20} color={theme.colors.brand[400]} />}
             trailing={
-              <Switch value={notifications} onValueChange={setNotifications} />
+              <Switch
+                value={notifications}
+                onValueChange={toggleNotifications}
+                disabled={!notificationsReady || notificationsUpdating}
+              />
             }
             divider
           />

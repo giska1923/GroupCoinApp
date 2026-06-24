@@ -10,6 +10,7 @@ export const endpoints = {
     login: '/auth/login',
     register: '/auth/register',
     me: '/auth/me',
+    deviceTokens: '/auth/device-tokens',
   },
   users: {
     update: (id: string) => `/users/${id}`,
