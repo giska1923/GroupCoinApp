@@ -17,8 +17,7 @@ import {
 
 export function useNotificationSettings() {
   const userId = useAuthStore(s => s.user?.id);
-  const setSession = useAuthStore(s => s.setSession);
-  const token = useAuthStore(s => s.token);
+  const setUser = useAuthStore(s => s.setUser);
   const { data: fetchedUser } = useCurrentUser();
   const [enabled, setEnabled] = useState(false);
   const [ready, setReady] = useState(false);
@@ -71,9 +70,7 @@ export function useNotificationSettings() {
 
       await setLocalNotificationsEnabled(nextEnabled);
 
-      if (token) {
-        await setSession(user, token);
-      }
+      await setUser(user);
 
       return user;
     },

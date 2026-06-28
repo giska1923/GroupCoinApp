@@ -6,6 +6,7 @@ import { useTheme } from '../../src/theme/ThemeProvider';
 import { Screen } from '../../src/components/layout/Screen';
 import { Column } from '../../src/components/layout/Row';
 import { Typography, Button } from '../../src/components/ui';
+import { GoogleSignInButton } from '../../src/components/auth/GoogleSignInButton';
 
 export default function WelcomeScreen() {
   const theme = useTheme();
@@ -55,6 +56,18 @@ export default function WelcomeScreen() {
           >
             Create Account
           </Button>
+
+          <Typography
+            variant='caption'
+            color='secondary'
+            style={{ textAlign: 'center' }}
+          >
+            or
+          </Typography>
+
+          <GoogleSignInButton
+            onSuccess={() => router.replace('/(app)/groups')}
+          />
         </Column>
       </Column>
     </Screen>

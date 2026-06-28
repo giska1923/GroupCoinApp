@@ -8,6 +8,7 @@ import { Column } from '../../src/components/layout/Row';
 import { Typography, TextField, Button } from '../../src/components/ui';
 import { useLogin } from '../../src/hooks';
 import { ClientError } from '../../src/api/errors';
+import { GoogleSignInButton } from '../../src/components/auth/GoogleSignInButton';
 
 export default function LoginScreen() {
   const theme = useTheme();
@@ -88,6 +89,18 @@ export default function LoginScreen() {
         >
           Sign In
         </Button>
+
+        <Typography
+          variant='caption'
+          color='secondary'
+          style={{ textAlign: 'center' }}
+        >
+          or
+        </Typography>
+
+        <GoogleSignInButton
+          onSuccess={() => router.replace('/(app)/groups')}
+        />
 
         <Button
           variant='ghost'

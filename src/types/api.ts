@@ -16,7 +16,10 @@ export interface UserDTO {
 
 export interface AuthResponseDTO {
   user: UserDTO;
-  token: string;
+  /** Short-lived bearer token sent on every authenticated request. */
+  accessToken: string;
+  /** Long-lived token exchanged at /auth/refresh for a new access token. */
+  refreshToken: string;
 }
 
 export interface GroupDTO {
@@ -196,6 +199,11 @@ export interface RegisterPayload {
   email: string;
   password: string;
   contact?: string;
+}
+
+export interface GoogleLoginPayload {
+  /** Google OpenID Connect ID token obtained from the native sign-in flow. */
+  idToken: string;
 }
 
 export interface UpdateUserPayload {

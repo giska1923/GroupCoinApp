@@ -17,10 +17,12 @@ import { ThemeProvider } from '../src/theme/ThemeProvider';
 import { colors } from '../src/theme/tokens';
 import { queryClient } from '../src/api/queryClient';
 import { configureForegroundNotificationHandler } from '../src/notifications';
+import { configureGoogleSignin } from '../src/auth/google';
 
 export default function RootLayout() {
   useEffect(() => {
     void configureForegroundNotificationHandler();
+    configureGoogleSignin();
   }, []);
 
   // Outfit is used only for the brand logo wordmark; the rest of the app keeps

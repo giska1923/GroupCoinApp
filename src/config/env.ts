@@ -5,9 +5,15 @@ import { Platform } from 'react-native';
 interface AppConfig {
   apiUrl: string;
   appEnv: 'dev' | 'staging' | 'prod';
+  /** Google OAuth Web client ID — required to obtain an ID token on Android. */
+  googleWebClientId?: string;
+  /** Google OAuth iOS client ID — required for the native iOS sign-in flow. */
+  googleIosClientId?: string;
 }
 
 const extra = (Constants.expoConfig?.extra ?? {}) as Partial<AppConfig>;
+
+const DEFAULT_DEV_API_URL = '192.168.1.117';
 
 const DEFAULT_DEV_API_PORT = '3000';
 
@@ -50,9 +56,8 @@ function resolveApiUrl(): string {
     if (metroHost) {
       return `http://${metroHost}:${DEFAULT_DEV_API_PORT}`;
     }
-    // The Android emulator reaches the host machine via 10.0.2.2, not localhost.
     if (Platform.OS === 'android' && !Constants.isDevice) {
-      return `http://10.0.2.2:${DEFAULT_DEV_API_PORT}`;
+      return `http://${DEFAULT_DEV_API_URL}:${DEFAULT_DEV_API_PORT}`;
     }
     return `http://localhost:${DEFAULT_DEV_API_PORT}`;
   }
@@ -62,7 +67,7 @@ function resolveApiUrl(): string {
   }
 
   if (Platform.OS === 'android' && !Constants.isDevice) {
-    return `http://10.0.2.2:${DEFAULT_DEV_API_PORT}`;
+    return `http://${DEFAULT_DEV_API_URL}:${DEFAULT_DEV_API_PORT}`;
   }
 
   return `http://localhost:${DEFAULT_DEV_API_PORT}`;
@@ -71,6 +76,8 @@ function resolveApiUrl(): string {
 export const env: AppConfig = {
   apiUrl: resolveApiUrl(),
   appEnv: extra.appEnv ?? 'dev',
+  googleWebClientId: extra.googleWebClientId,
+  googleIosClientId: extra.googleIosClientId,
 };
 
 if (__DEV__) {

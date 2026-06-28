@@ -25,7 +25,8 @@ export default ({ config }: ConfigContext): ExpoConfig => {
       adaptiveIcon: {
         foregroundImage: './assets/nobg.png',
         backgroundColor: '#000000',
-        monochromeImage: './assets/android-icon-monochrome.png',
+        // monochromeImage requires assets/android-icon-monochrome.png, which
+        // isn't in the repo — re-add the line once that asset exists.
       },
       package: getBundleId(appEnv),
     },
@@ -39,10 +40,18 @@ export default ({ config }: ConfigContext): ExpoConfig => {
           enableBackgroundRemoteNotifications: true,
         },
       ],
+      [
+        '@react-native-google-signin/google-signin',
+        // iOS needs the reversed-client-ID URL scheme to receive the OAuth
+        // callback. Derived from the iOS client ID so there's a single source.
+        { iosUrlScheme: getGoogleIosUrlScheme() },
+      ],
     ],
     extra: {
       apiUrl: getApiUrl(appEnv),
       appEnv,
+      googleWebClientId: process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID,
+      googleIosClientId: process.env.EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID,
       eas: {
         projectId: process.env.EAS_PROJECT_ID,
       },
@@ -62,6 +71,22 @@ function getBundleId(env: string): string {
     default:
       return `${base}.dev`;
   }
+}
+
+/**
+ * Builds the iOS URL scheme the Google plugin needs from the iOS client ID.
+ * An iOS client ID like "1234-abc.apps.googleusercontent.com" maps to the
+ * reversed scheme "com.googleusercontent.apps.1234-abc". Falls back to a
+ * harmless placeholder when the ID isn't configured so prebuild never crashes.
+ */
+function getGoogleIosUrlScheme(): string {
+  const iosClientId = process.env.EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID;
+  const suffix = '.apps.googleusercontent.com';
+  if (iosClientId && iosClientId.endsWith(suffix)) {
+    const id = iosClientId.slice(0, -suffix.length);
+    return `com.googleusercontent.apps.${id}`;
+  }
+  return 'com.googleusercontent.apps.placeholder';
 }
 
 function getApiUrl(env: string): string {

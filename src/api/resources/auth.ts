@@ -2,6 +2,7 @@ import { apiClient } from '../client';
 import { endpoints } from '../endpoints';
 import type {
   AuthResponseDTO,
+  GoogleLoginPayload,
   LoginPayload,
   RegisterPayload,
   UserDTO,
@@ -17,6 +18,17 @@ export const authApi = {
     apiClient
       .post<AuthResponseDTO>(endpoints.auth.register, body)
       .then(r => r.data),
+
+  google: (body: GoogleLoginPayload) =>
+    apiClient
+      .post<AuthResponseDTO>(endpoints.auth.google, body)
+      .then(r => r.data),
+
+  /** Revokes the refresh token server-side. Best-effort on logout. */
+  logout: (refreshToken: string) =>
+    apiClient
+      .post<void>(endpoints.auth.logout, { refreshToken })
+      .then(() => undefined),
 
   me: () => apiClient.get<UserDTO>(endpoints.auth.me).then(r => r.data),
 
