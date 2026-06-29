@@ -9,6 +9,8 @@ export const endpoints = {
   auth: {
     login: '/auth/login',
     register: '/auth/register',
+    verifyEmail: '/auth/verify-email',
+    resendVerification: '/auth/resend-verification',
     google: '/auth/google',
     refresh: '/auth/refresh',
     logout: '/auth/logout',

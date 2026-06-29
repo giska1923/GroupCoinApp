@@ -4,8 +4,11 @@ import type {
   AuthResponseDTO,
   GoogleLoginPayload,
   LoginPayload,
+  PendingVerificationDTO,
   RegisterPayload,
+  ResendVerificationPayload,
   UserDTO,
+  VerifyEmailPayload,
 } from '../../types/api';
 
 export const authApi = {
@@ -14,9 +17,21 @@ export const authApi = {
       .post<AuthResponseDTO>(endpoints.auth.login, body)
       .then(r => r.data),
 
+  /** Creates the account and triggers a verification email. No session yet. */
   register: (body: RegisterPayload) =>
     apiClient
-      .post<AuthResponseDTO>(endpoints.auth.register, body)
+      .post<PendingVerificationDTO>(endpoints.auth.register, body)
+      .then(r => r.data),
+
+  /** Confirms the emailed code and, on success, returns a real session. */
+  verifyEmail: (body: VerifyEmailPayload) =>
+    apiClient
+      .post<AuthResponseDTO>(endpoints.auth.verifyEmail, body)
+      .then(r => r.data),
+
+  resendVerification: (body: ResendVerificationPayload) =>
+    apiClient
+      .post<PendingVerificationDTO>(endpoints.auth.resendVerification, body)
       .then(r => r.data),
 
   google: (body: GoogleLoginPayload) =>

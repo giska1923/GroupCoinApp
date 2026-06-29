@@ -10,6 +10,8 @@ export interface UserDTO {
   contact: string | null;
   role: 'BASIC' | 'MID' | 'PREMIUM';
   notificationsEnabled?: boolean;
+  /** True once the user has confirmed ownership of their email. */
+  emailVerified?: boolean;
   createdAt: string;
   updatedAt: string;
 }
@@ -20,6 +22,17 @@ export interface AuthResponseDTO {
   accessToken: string;
   /** Long-lived token exchanged at /auth/refresh for a new access token. */
   refreshToken: string;
+}
+
+/**
+ * Returned by registration (and resend) instead of tokens: the account exists
+ * but is awaiting email verification. The client must POST the emailed code to
+ * /auth/verify-email to obtain a session.
+ */
+export interface PendingVerificationDTO {
+  email: string;
+  verificationRequired: boolean;
+  message: string;
 }
 
 export interface GroupDTO {
@@ -199,6 +212,16 @@ export interface RegisterPayload {
   email: string;
   password: string;
   contact?: string;
+}
+
+export interface VerifyEmailPayload {
+  email: string;
+  /** The 6-digit code sent to the user's email. */
+  code: string;
+}
+
+export interface ResendVerificationPayload {
+  email: string;
 }
 
 export interface GoogleLoginPayload {

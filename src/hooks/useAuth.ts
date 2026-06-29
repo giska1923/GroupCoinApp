@@ -4,7 +4,12 @@ import { queryKeys } from '../api/queryClient';
 import { useAuthStore } from '../stores/auth.store';
 import { unregisterPushTokenForLogout } from '../notifications/session';
 import { signInWithGoogle, signOutFromGoogle } from '../auth/google';
-import type { LoginPayload, RegisterPayload } from '../types/api';
+import type {
+  LoginPayload,
+  RegisterPayload,
+  ResendVerificationPayload,
+  VerifyEmailPayload,
+} from '../types/api';
 
 /** Validates the persisted token against the backend (GET /auth/me). */
 export const useCurrentUser = () => {
@@ -27,15 +32,37 @@ export const useLogin = () => {
   });
 };
 
-export const useRegister = () => {
+/**
+ * Registers the account and triggers the verification email. Deliberately does
+ * NOT open a session — the user must verify the emailed code first (see
+ * {@link useVerifyEmail}). Returns the pending-verification payload so the
+ * caller can route to the verification screen with the email prefilled.
+ */
+export const useRegister = () =>
+  useMutation({
+    mutationFn: (body: RegisterPayload) => authApi.register(body),
+  });
+
+/**
+ * Confirms the emailed 6-digit code. On success the backend returns a real
+ * session, which we persist here — the same effect as a login.
+ */
+export const useVerifyEmail = () => {
   const setSession = useAuthStore(s => s.setSession);
   return useMutation({
-    mutationFn: (body: RegisterPayload) => authApi.register(body),
+    mutationFn: (body: VerifyEmailPayload) => authApi.verifyEmail(body),
     onSuccess: async ({ user, accessToken, refreshToken }) => {
       await setSession(user, accessToken, refreshToken);
     },
   });
 };
+
+/** Requests a fresh verification code for an unverified account. */
+export const useResendVerification = () =>
+  useMutation({
+    mutationFn: (body: ResendVerificationPayload) =>
+      authApi.resendVerification(body),
+  });
 
 /**
  * Drives the full Google flow: native sign-in to obtain an ID token, then

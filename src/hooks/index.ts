@@ -2,6 +2,8 @@ export {
   useCurrentUser,
   useLogin,
   useRegister,
+  useVerifyEmail,
+  useResendVerification,
   useGoogleLogin,
   useLogout,
 } from './useAuth';

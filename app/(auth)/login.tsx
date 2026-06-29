@@ -25,9 +25,25 @@ export default function LoginScreen() {
         : undefined;
 
   const handleSubmit = () => {
+    const trimmedEmail = email.trim();
     login.mutate(
-      { email: email.trim(), password },
-      { onSuccess: () => router.replace('/(app)/groups') },
+      { email: trimmedEmail, password },
+      {
+        onSuccess: () => router.replace('/(app)/groups'),
+        onError: error => {
+          // The account exists with the right password but isn't verified yet.
+          // The backend has re-sent a code, so route to the verify screen.
+          if (
+            error instanceof ClientError &&
+            error.code === 'EMAIL_NOT_VERIFIED'
+          ) {
+            router.push({
+              pathname: '/(auth)/verify-email',
+              params: { email: trimmedEmail },
+            });
+          }
+        },
+      },
     );
   };
 

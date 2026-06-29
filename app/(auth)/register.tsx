@@ -27,9 +27,18 @@ export default function RegisterScreen() {
     name.trim().length > 0 && email.trim().length > 0 && password.length >= 8;
 
   const handleSubmit = () => {
+    const trimmedEmail = email.trim();
     register.mutate(
-      { name: name.trim(), email: email.trim(), password },
-      { onSuccess: () => router.replace('/(app)/groups') },
+      { name: name.trim(), email: trimmedEmail, password },
+      {
+        // No session yet — the account is pending email verification. Send the
+        // user to the code-entry screen with their email prefilled.
+        onSuccess: () =>
+          router.push({
+            pathname: '/(auth)/verify-email',
+            params: { email: trimmedEmail },
+          }),
+      },
     );
   };
 

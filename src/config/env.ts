@@ -83,7 +83,7 @@ export const env: AppConfig = {
 if (__DEV__) {
   // Surfaces the resolved base URL in the Metro console so connection issues
   // are easy to diagnose. Remove once the connection is confirmed working.
-  console.log('[env] apiUrl =', env.apiUrl);
+  // console.log('[env] apiUrl =', env.apiUrl);
 }
 
 // Environment checks
