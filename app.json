@@ -7,7 +7,10 @@
     "icon": "./assets/logo.png",
     "userInterfaceStyle": "dark",
     "scheme": "groupcoin",
-    "platforms": ["ios", "android"],
+    "platforms": [
+      "ios",
+      "android"
+    ],
     "splash": {
       "image": "./assets/nobg.png",
       "resizeMode": "contain",
@@ -20,15 +23,24 @@
     "android": {
       "adaptiveIcon": {
         "backgroundColor": "#000000",
-        "foregroundImage": "./assets/nobg.png",
-        "monochromeImage": "./assets/android-icon-monochrome.png"
+        "foregroundImage": "./assets/logo.png"
       },
       "package": "com.groupcoin.mobile",
       "predictiveBackGestureEnabled": false
     },
-    "plugins": ["expo-router"],
+    "plugins": [
+      "expo-router"
+    ],
     "experiments": {
       "typedRoutes": false
+    },
+    "extra": {
+      "eas": {
+        "projectId": "a2a9de89-30f2-4b6a-804e-2c409a08d776"
+      },
+      "apiUrl": "http://localhost:3000",
+      "appEnv": "dev",
+      "router": {}
     }
   }
 }

@@ -107,7 +107,9 @@ export async function registerForPushNotificationsAsync(): Promise<PushPermissio
       token,
       platform: Platform.OS === 'ios' ? 'ios' : 'android',
     };
-  } catch {
+  } catch (error) {
+    const detail = error instanceof Error ? error.message : String(error);
+    console.warn('[push] getExpoPushTokenAsync failed:', detail);
     return {
       ok: false,
       reason: 'token_error',

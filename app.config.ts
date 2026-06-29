@@ -7,6 +7,7 @@ export default ({ config }: ConfigContext): ExpoConfig => {
     ...config,
     name: 'GroupCoin',
     slug: 'groupcoin-mobile',
+    owner: 'giska1923',
     version: '1.0.0',
     orientation: 'portrait',
     icon: './assets/logo.png',
@@ -23,12 +24,17 @@ export default ({ config }: ConfigContext): ExpoConfig => {
     },
     android: {
       adaptiveIcon: {
-        foregroundImage: './assets/nobg.png',
+        // Same source as the iOS icon. logo.png already has its padding/black
+        // border baked in, so it sits inside the adaptive-icon safe zone.
+        foregroundImage: './assets/logo.png',
         backgroundColor: '#000000',
         // monochromeImage requires assets/android-icon-monochrome.png, which
         // isn't in the repo — re-add the line once that asset exists.
       },
       package: getBundleId(appEnv),
+      // FCM config for push notifications. Contains entries for all three
+      // package names (dev/staging/prod), so one file covers every profile.
+      googleServicesFile: './google-services.json',
     },
     plugins: [
       'expo-router',
@@ -53,7 +59,13 @@ export default ({ config }: ConfigContext): ExpoConfig => {
       googleWebClientId: process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID,
       googleIosClientId: process.env.EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID,
       eas: {
-        projectId: process.env.EAS_PROJECT_ID,
+        // The EAS project ID powers Expo push tokens and `eas` CLI linking.
+        // Literal default (overridable by env) so it's always statically
+        // readable — required for the dynamic config to resolve and to stop
+        // `eas` commands from trying to re-link the project.
+        projectId:
+          process.env.EAS_PROJECT_ID ??
+          'a2a9de89-30f2-4b6a-804e-2c409a08d776',
       },
     },
   } as ExpoConfig;

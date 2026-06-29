@@ -1,0 +1,36 @@
+{
+  "cli": {
+    "version": ">= 20.2.0",
+    "appVersionSource": "local"
+  },
+  "build": {
+    "development": {
+      "developmentClient": true,
+      "distribution": "internal",
+      "env": {
+        "APP_ENV": "dev",
+        "EAS_PROJECT_ID": "a2a9de89-30f2-4b6a-804e-2c409a08d776",
+        "EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID": "854518249939-6h56rr72057kjk8jolpaniqcli95kndj.apps.googleusercontent.com"
+      }
+    },
+    "preview": {
+      "distribution": "internal",
+      "env": {
+        "APP_ENV": "staging",
+        "EAS_PROJECT_ID": "a2a9de89-30f2-4b6a-804e-2c409a08d776",
+        "EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID": "854518249939-6h56rr72057kjk8jolpaniqcli95kndj.apps.googleusercontent.com"
+      }
+    },
+    "production": {
+      "autoIncrement": true,
+      "env": {
+        "APP_ENV": "prod",
+        "EAS_PROJECT_ID": "a2a9de89-30f2-4b6a-804e-2c409a08d776",
+        "EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID": "854518249939-6h56rr72057kjk8jolpaniqcli95kndj.apps.googleusercontent.com"
+      }
+    }
+  },
+  "submit": {
+    "production": {}
+  }
+}

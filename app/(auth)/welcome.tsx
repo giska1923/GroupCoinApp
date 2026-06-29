@@ -1,7 +1,7 @@
 import React from 'react';
-import { TouchableOpacity } from 'react-native';
+import { Image } from 'react-native';
 import { router } from 'expo-router';
-import { Coins, LogIn, UserPlus } from 'lucide-react-native';
+import { LogIn, UserPlus } from 'lucide-react-native';
 import { useTheme } from '../../src/theme/ThemeProvider';
 import { Screen } from '../../src/components/layout/Screen';
 import { Column } from '../../src/components/layout/Row';
@@ -20,7 +20,11 @@ export default function WelcomeScreen() {
       <Column justify='center' align='center' gap='xl' style={{ flex: 1 }}>
         {/* Logo and Title */}
         <Column align='center' gap='lg'>
-          <Coins size={64} color={theme.colors.brand[400]} />
+          <Image
+            source={require('../../assets/nobg.png')}
+            style={{ width: 96, height: 96 }}
+            resizeMode='contain'
+          />
           <Typography variant='display' color='primary' weight='bold'>
             GroupCoin
           </Typography>

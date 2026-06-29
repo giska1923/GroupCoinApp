@@ -1,0 +1,67 @@
+{
+  "project_info": {
+    "project_number": "682650446188",
+    "project_id": "groupcoin",
+    "storage_bucket": "groupcoin.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:682650446188:android:3797cf816771af412e2b49",
+        "android_client_info": {
+          "package_name": "com.groupcoin.mobile"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC1Q5EVJo5A_DjobKFsnIaMETfrsQwgipM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:682650446188:android:76f118d5e0a1178e2e2b49",
+        "android_client_info": {
+          "package_name": "com.groupcoin.mobile.dev"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC1Q5EVJo5A_DjobKFsnIaMETfrsQwgipM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:682650446188:android:713951c76564eefd2e2b49",
+        "android_client_info": {
+          "package_name": "com.groupcoin.mobile.staging"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC1Q5EVJo5A_DjobKFsnIaMETfrsQwgipM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
