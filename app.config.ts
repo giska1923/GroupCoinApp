@@ -42,6 +42,9 @@ export default ({ config }: ConfigContext): ExpoConfig => {
       [
         'expo-notifications',
         {
+          // White-on-transparent silhouette; Android tints it with `color`.
+          icon: './assets/notification-icon.png',
+          color: '#0ea5e9',
           defaultChannel: 'groupcoin-default',
           enableBackgroundRemoteNotifications: true,
         },
