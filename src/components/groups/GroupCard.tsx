@@ -72,6 +72,21 @@ export const GroupCard: React.FC<GroupCardProps> = ({ group, onPress }) => {
   const showImage = !!group.imageUrl && !imageFailed;
   const memberCount = group.memberCount;
 
+  const settled = group.status === 'SETTLED_UP';
+  const statusPill = settled
+    ? {
+        label: 'SETTLED UP',
+        background: 'rgba(61, 255, 138, 0.12)',
+        dot: theme.colors.financialPositive,
+        text: theme.colors.financialPositiveMuted,
+      }
+    : {
+        label: 'ACTIVE',
+        background: 'rgba(129, 140, 248, 0.14)',
+        dot: theme.colors.brand[400],
+        text: theme.colors.brand[300],
+      };
+
   return (
     <TouchableOpacity
       activeOpacity={0.85}
@@ -170,7 +185,7 @@ export const GroupCard: React.FC<GroupCardProps> = ({ group, onPress }) => {
                 paddingHorizontal: theme.spacing.sm,
                 paddingVertical: 3,
                 borderRadius: theme.radius.full,
-                backgroundColor: 'rgba(129, 140, 248, 0.14)',
+                backgroundColor: statusPill.background,
               }}
             >
               <View
@@ -178,18 +193,18 @@ export const GroupCard: React.FC<GroupCardProps> = ({ group, onPress }) => {
                   width: 6,
                   height: 6,
                   borderRadius: 3,
-                  backgroundColor: theme.colors.brand[400],
+                  backgroundColor: statusPill.dot,
                 }}
               />
               <Typography
                 variant='label'
                 weight='semibold'
                 style={{
-                  color: theme.colors.brand[300],
+                  color: statusPill.text,
                   letterSpacing: 1,
                 }}
               >
-                ACTIVE
+                {statusPill.label}
               </Typography>
             </View>
           </View>

@@ -35,6 +35,8 @@ export interface PendingVerificationDTO {
   message: string;
 }
 
+export type GroupStatus = 'ACTIVE' | 'SETTLED_UP';
+
 export interface GroupDTO {
   id: string;
   name: string;
@@ -43,6 +45,8 @@ export interface GroupDTO {
   /** https URL or base64 data URI; backend assigns a default at creation. */
   imageUrl: string | null;
   ownerId: string;
+  /** ACTIVE while any member owes money; SETTLED_UP once all balances are zero. */
+  status: GroupStatus;
   createdAt: string;
   updatedAt: string;
   memberCount?: number;
@@ -205,6 +209,8 @@ export interface CreateSettlementPayload {
   fromUserId: string;
   toUserId: string;
   amount: string; // decimal string
+  /** ISO 4217 code; backend defaults to the group currency when omitted. */
+  currency?: string;
   note?: string;
 }
 

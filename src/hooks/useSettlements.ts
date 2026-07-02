@@ -20,6 +20,9 @@ export const useCreateSettlement = (groupId: string) => {
       qc.invalidateQueries({ queryKey: queryKeys.balances.group(groupId) });
       qc.invalidateQueries({ queryKey: queryKeys.balances.simplified(groupId) });
       qc.invalidateQueries({ queryKey: queryKeys.activity.group(groupId) });
+      // The settlement may have flipped the group to SETTLED_UP (or back).
+      qc.invalidateQueries({ queryKey: queryKeys.groups.detail(groupId) });
+      qc.invalidateQueries({ queryKey: queryKeys.groups.all });
     },
   });
 };

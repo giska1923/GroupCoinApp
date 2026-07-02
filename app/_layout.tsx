@@ -1,8 +1,8 @@
-import { View } from 'react-native';
+import { AppState, Platform, View } from 'react-native';
 import { useEffect } from 'react';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import { QueryClientProvider } from '@tanstack/react-query';
+import { QueryClientProvider, focusManager } from '@tanstack/react-query';
 import {
   SafeAreaProvider,
   initialWindowMetrics,
@@ -23,6 +23,18 @@ export default function RootLayout() {
   useEffect(() => {
     void configureForegroundNotificationHandler();
     configureGoogleSignin();
+  }, []);
+
+  // React Query has no window focus on native — drive it from AppState so
+  // stale queries refetch when the app returns to the foreground (e.g. socket
+  // events missed while backgrounded).
+  useEffect(() => {
+    const subscription = AppState.addEventListener('change', status => {
+      if (Platform.OS !== 'web') {
+        focusManager.setFocused(status === 'active');
+      }
+    });
+    return () => subscription.remove();
   }, []);
 
   // Outfit is used only for the brand logo wordmark; the rest of the app keeps

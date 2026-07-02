@@ -1,14 +1,15 @@
-import React, { useMemo } from 'react';
-import { View } from 'react-native';
+import React, { useMemo, useState } from 'react';
+import { Alert, View } from 'react-native';
 import { useTheme } from '../../theme/ThemeProvider';
 import { useAuthStore } from '../../stores/auth.store';
 import { useSimplifiedTransfers } from '../../hooks/useBalances';
 import { useGroupMembers } from '../../hooks/useGroup';
+import { useCreateSettlement } from '../../hooks/useSettlements';
 import { ClientError } from '../../api/errors';
 import type { GroupMemberDTO, SimplifiedTransferDTO } from '../../types/api';
 import { resolveMemberDisplayName } from '../../utils/memberDisplay';
 import { Column } from '../layout/Row';
-import { Typography, Amount } from '../ui';
+import { Typography, Amount, Button } from '../ui';
 import { Spinner, ErrorState, EmptyState } from '../feedback';
 import { isZeroAmount } from '../../utils/money';
 import { DEFAULT_CURRENCY, isSupportedCurrency } from '../../config/currency';
@@ -36,11 +37,53 @@ const transferCopy = (
   return `${from} owes you`;
 };
 
+const transferKey = (transfer: SimplifiedTransferDTO): string =>
+  `${transfer.fromUserId}-${transfer.toUserId}-${transfer.currency}`;
+
 export const SettleUpList: React.FC<SettleUpListProps> = ({ groupId }) => {
   const theme = useTheme();
   const currentUserId = useAuthStore(s => s.user?.id);
   const transfers = useSimplifiedTransfers(groupId);
   const members = useGroupMembers(groupId);
+  const createSettlement = useCreateSettlement(groupId);
+  const [settlingKey, setSettlingKey] = useState<string | null>(null);
+
+  const settleTransfer = (transfer: SimplifiedTransferDTO) => {
+    if (!currentUserId) return;
+    const copy = transferCopy(transfer, currentUserId, members.data);
+
+    Alert.alert(
+      'Record settlement?',
+      `${copy} ${transfer.currency} ${transfer.amount}. This marks the debt as paid.`,
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Settle',
+          onPress: () => {
+            setSettlingKey(transferKey(transfer));
+            createSettlement.mutate(
+              {
+                fromUserId: transfer.fromUserId,
+                toUserId: transfer.toUserId,
+                amount: transfer.amount,
+                currency: transfer.currency,
+              },
+              {
+                onSettled: () => setSettlingKey(null),
+                onError: error =>
+                  Alert.alert(
+                    'Could not record settlement',
+                    error instanceof ClientError
+                      ? error.message
+                      : 'Please try again.',
+                  ),
+              },
+            );
+          },
+        },
+      ],
+    );
+  };
 
   const mine = useMemo(() => {
     if (!currentUserId || !transfers.data) return [];
@@ -84,29 +127,43 @@ export const SettleUpList: React.FC<SettleUpListProps> = ({ groupId }) => {
       <Typography variant='caption' color='secondary'>
         Pay these to settle everyone up:
       </Typography>
-      {mine.map((transfer, index) => (
-        <View
-          key={`${transfer.fromUserId}-${transfer.toUserId}-${transfer.currency}-${index}`}
-          style={{
-            flexDirection: 'row',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            paddingVertical: theme.spacing.sm,
-            borderBottomWidth: index < mine.length - 1 ? 1 : 0,
-            borderBottomColor: theme.colors.surface.border,
-          }}
-        >
-          <Typography variant='body' style={{ flex: 1, paddingRight: theme.spacing.md }}>
-            {transferCopy(transfer, currentUserId, members.data)}
-          </Typography>
-          <Amount
-            value={transfer.amount}
-            currency={DEFAULT_CURRENCY}
-            variant='default'
-            showSign={false}
-          />
-        </View>
-      ))}
+      {mine.map((transfer, index) => {
+        const key = transferKey(transfer);
+        return (
+          <View
+            key={`${key}-${index}`}
+            style={{
+              flexDirection: 'row',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              gap: theme.spacing.md,
+              paddingVertical: theme.spacing.sm,
+              borderBottomWidth: index < mine.length - 1 ? 1 : 0,
+              borderBottomColor: theme.colors.surface.border,
+            }}
+          >
+            <Typography variant='body' style={{ flex: 1 }}>
+              {transferCopy(transfer, currentUserId, members.data)}
+            </Typography>
+            <Amount
+              value={transfer.amount}
+              currency={DEFAULT_CURRENCY}
+              variant='default'
+              showSign={false}
+            />
+            <Button
+              variant='outline'
+              size='sm'
+              rounded
+              loading={settlingKey === key}
+              disabled={createSettlement.isPending}
+              onPress={() => settleTransfer(transfer)}
+            >
+              Settle
+            </Button>
+          </View>
+        );
+      })}
     </Column>
   );
 };
