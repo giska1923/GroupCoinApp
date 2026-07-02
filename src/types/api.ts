@@ -40,6 +40,8 @@ export interface GroupDTO {
   name: string;
   description: string | null;
   currency: string;
+  /** https URL or base64 data URI; backend assigns a default at creation. */
+  imageUrl: string | null;
   ownerId: string;
   createdAt: string;
   updatedAt: string;
@@ -173,6 +175,8 @@ export interface CreateGroupPayload {
   description?: string;
   /** Mapped to `defaultCurrency` on the API. */
   currency?: string;
+  /** https URL or base64 data URI. Omit to get a server-assigned default. */
+  imageUrl?: string;
   inviteEmails?: string[];
 }
 
@@ -181,6 +185,8 @@ export interface UpdateGroupPayload {
   description?: string;
   /** Mapped to `defaultCurrency` on the API. */
   currency?: string;
+  /** https URL or base64 data URI. */
+  imageUrl?: string;
 }
 
 export interface CreateExpensePayload {

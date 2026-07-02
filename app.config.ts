@@ -40,6 +40,13 @@ export default ({ config }: ConfigContext): ExpoConfig => {
       'expo-router',
       'expo-secure-store',
       [
+        'expo-image-picker',
+        {
+          photosPermission:
+            'GroupCoin uses your photos so you can set a group picture.',
+        },
+      ],
+      [
         'expo-notifications',
         {
           // White-on-transparent silhouette; Android tints it with `color`.

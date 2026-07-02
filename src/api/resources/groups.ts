@@ -14,6 +14,7 @@ import type {
 
 type RawGroup = GroupDTO & {
   defaultCurrency?: string;
+  image_url?: string | null;
   owner_id?: string;
   owner?: { id?: string };
   createdBy?: string;
@@ -32,6 +33,7 @@ function normalizeGroup(raw: RawGroup): GroupDTO {
     name: raw.name ?? '',
     description: raw.description ?? null,
     currency: resolveCurrency(raw.currency ?? raw.defaultCurrency),
+    imageUrl: raw.imageUrl ?? raw.image_url ?? null,
     ownerId: ownerId ?? raw.ownerId ?? '',
   };
 }

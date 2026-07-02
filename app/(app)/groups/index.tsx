@@ -10,7 +10,6 @@ import {
   Typography,
   Card,
   Amount,
-  Button,
 } from '../../../src/components/ui';
 import {
   Spinner,
@@ -18,6 +17,7 @@ import {
   ErrorState,
 } from '../../../src/components/feedback';
 import { InvitationBell } from '../../../src/components/groups/InvitationsInbox';
+import { GroupCard } from '../../../src/components/groups/GroupCard';
 import { useOverview, useInvitations } from '../../../src/hooks';
 import { isNegativeAmount, isPositiveAmount, isZeroAmount } from '../../../src/utils/money';
 
@@ -39,22 +39,6 @@ export default function GroupsScreen() {
     : isNegativeAmount(netFlow)
       ? 'negative'
       : 'neutral';
-
-  // Darker neutral fill + subtle neutral border, lifted by our signature soft
-  // purple glow (same recipe as the Settle Up / Add expense buttons).
-  // NOTE: the fill is OPAQUE (not translucent) so the elevation shadow can't
-  // bleed through as a dark inner rectangle — it reads identically over the
-  // near-black screen.
-  const groupButtonStyle = {
-    backgroundColor: 'rgb(20, 20, 26)',
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.14)',
-    shadowColor: theme.colors.brand[400],
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.55,
-    shadowRadius: 12,
-    elevation: 8,
-  } as const;
 
   return (
     <Screen
@@ -169,24 +153,11 @@ export default function GroupsScreen() {
         >
           <View style={{ gap: theme.spacing.md }}>
             {groups.map(group => (
-              <Button
+              <GroupCard
                 key={group.id}
-                variant='secondary'
-                size='lg'
-                fullWidth
-                textColor={theme.colors.text.primary}
-                textWeight='bold'
-                textStyle={{ fontSize: theme.fontSize['2xl'] }}
-                style={{
-                  ...groupButtonStyle,
-                  // Match the card size & shape used on the Expenses/Group screens.
-                  height: 104,
-                  borderRadius: theme.components.card.radius,
-                }}
+                group={group}
                 onPress={() => router.push(`/(app)/groups/${group.id}`)}
-              >
-                {group.name}
-              </Button>
+              />
             ))}
           </View>
         </Section>
