@@ -110,8 +110,8 @@ export const GroupCard: React.FC<GroupCardProps> = ({ group, onPress }) => {
               cy={60}
               r={r}
               stroke={theme.colors.brand[400]}
-              strokeOpacity={0.14}
-              strokeWidth={1.5}
+              strokeOpacity={0.32}
+              strokeWidth={2.5}
               fill='none'
             />
           ))}

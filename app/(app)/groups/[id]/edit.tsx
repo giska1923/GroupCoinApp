@@ -1,9 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Image, TouchableOpacity, View } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
-import * as ImagePicker from 'expo-image-picker';
-import { manipulateAsync, SaveFormat } from 'expo-image-manipulator';
-import { Camera, Users } from 'lucide-react-native';
 import { useTheme } from '../../../../src/theme/ThemeProvider';
 import { Screen } from '../../../../src/components/layout/Screen';
 import { Header } from '../../../../src/components/layout/Header';
@@ -11,6 +7,7 @@ import { Column } from '../../../../src/components/layout/Row';
 import { Typography, TextField, Button } from '../../../../src/components/ui';
 import { Spinner, ErrorState } from '../../../../src/components/feedback';
 import { MemberInviteSection } from '../../../../src/components/groups/MemberInviteSection';
+import { GroupImagePicker } from '../../../../src/components/groups/GroupImagePicker';
 import {
   useGroup,
   useGroupMembers,
@@ -52,30 +49,6 @@ export default function EditGroupScreen() {
 
   const close = () => {
     if (router.canGoBack()) router.back();
-  };
-
-  const handlePickImage = async () => {
-    try {
-      const result = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ['images'],
-        allowsEditing: true,
-        aspect: [1, 1],
-        quality: 1,
-      });
-      if (result.canceled || !result.assets[0]) return;
-
-      // Shrink to a small square JPEG so the base64 payload stays tiny.
-      const resized = await manipulateAsync(
-        result.assets[0].uri,
-        [{ resize: { width: 512, height: 512 } }],
-        { compress: 0.7, format: SaveFormat.JPEG, base64: true },
-      );
-      if (resized.base64) {
-        setNewImage(`data:image/jpeg;base64,${resized.base64}`);
-      }
-    } catch {
-      setSaveError('Could not load that image. Please try another one.');
-    }
   };
 
   const handleSave = async () => {
@@ -145,43 +118,12 @@ export default function EditGroupScreen() {
       />
 
       <Column gap='xl' style={{ paddingTop: theme.spacing.lg }}>
-        {/* Group image */}
-        <View style={{ alignItems: 'center', gap: theme.spacing.sm }}>
-          <TouchableOpacity
-            activeOpacity={0.8}
-            onPress={handlePickImage}
-            style={{
-              width: 96,
-              height: 96,
-              borderRadius: 48,
-              backgroundColor: theme.colors.surface.tertiary,
-              borderWidth: 1,
-              borderColor: 'rgba(138, 137, 255, 0.35)',
-              alignItems: 'center',
-              justifyContent: 'center',
-              overflow: 'hidden',
-            }}
-          >
-            {newImage || group.data.imageUrl ? (
-              <Image
-                source={{ uri: newImage ?? group.data.imageUrl! }}
-                style={{ width: 96, height: 96 }}
-                resizeMode='cover'
-              />
-            ) : (
-              <Users size={40} color={theme.colors.brand[300]} />
-            )}
-          </TouchableOpacity>
-          <Button
-            variant='ghost'
-            size='sm'
-            icon={<Camera size={14} color={theme.colors.brand[400]} />}
-            textColor={theme.colors.brand[400]}
-            onPress={handlePickImage}
-          >
-            Change image
-          </Button>
-        </View>
+        <GroupImagePicker
+          value={newImage}
+          currentImageUrl={group.data.imageUrl}
+          onChange={setNewImage}
+          onError={setSaveError}
+        />
 
         <TextField
           label='Group name'

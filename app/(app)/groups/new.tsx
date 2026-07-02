@@ -6,6 +6,7 @@ import { Header } from '../../../src/components/layout/Header';
 import { Column } from '../../../src/components/layout/Row';
 import { Typography, TextField, Button } from '../../../src/components/ui';
 import { MemberInviteSection } from '../../../src/components/groups/MemberInviteSection';
+import { GroupImagePicker } from '../../../src/components/groups/GroupImagePicker';
 import { useCreateGroup } from '../../../src/hooks';
 import { ClientError } from '../../../src/api/errors';
 import { DEFAULT_CURRENCY } from '../../../src/config/currency';
@@ -14,6 +15,9 @@ export default function NewGroupScreen() {
   const theme = useTheme();
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
+  // Optional image (base64 data URI); the backend assigns a default if omitted.
+  const [image, setImage] = useState<string>();
+  const [imageError, setImageError] = useState<string>();
   const [pendingEmails, setPendingEmails] = useState<string[]>([]);
   const [saving, setSaving] = useState(false);
   const createGroup = useCreateGroup();
@@ -32,6 +36,7 @@ export default function NewGroupScreen() {
         name: name.trim(),
         description: description.trim() || undefined,
         currency: DEFAULT_CURRENCY,
+        imageUrl: image,
         inviteEmails: pendingEmails.length > 0 ? pendingEmails : undefined,
       });
 
@@ -72,6 +77,15 @@ export default function NewGroupScreen() {
       />
 
       <Column gap='xl' style={{ paddingTop: theme.spacing.lg }}>
+        <GroupImagePicker
+          value={image}
+          onChange={uri => {
+            setImageError(undefined);
+            setImage(uri);
+          }}
+          onError={setImageError}
+        />
+
         <TextField
           label='Group name'
           placeholder='e.g. Tokyo Trip'
@@ -99,9 +113,9 @@ export default function NewGroupScreen() {
           }
         />
 
-        {errorMessage && (
+        {(errorMessage ?? imageError) && (
           <Typography variant='caption' color='negative'>
-            {errorMessage}
+            {errorMessage ?? imageError}
           </Typography>
         )}
 
