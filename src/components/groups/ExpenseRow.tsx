@@ -38,6 +38,7 @@ export const ExpenseRow: React.FC<ExpenseRowProps> = ({
   const net = expenseUserNet(expense, splits, userId);
   const involved = !isZeroAmount(net);
   const positive = isPositiveAmount(net);
+  const settled = !!expense.settledAt;
 
   const detailLoading = detail.isLoading && !detail.data;
   const detailFailed =
@@ -93,9 +94,13 @@ export const ExpenseRow: React.FC<ExpenseRowProps> = ({
             paddingHorizontal: theme.spacing.md,
             backgroundColor: !involved
               ? theme.colors.surface.tertiary
-              : positive
-                ? '#06392b' // deepened green (text stays bright)
-                : '#591414', // deepened red (text stays bright)
+              : settled
+                ? positive
+                  ? '#1d2b25' // washed-out green for settled debts
+                  : '#2b1d1e' // washed-out red for settled debts
+                : positive
+                  ? '#06392b' // deepened green (text stays bright)
+                  : '#591414', // deepened red (text stays bright)
           }}
         >
           <Typography
@@ -106,9 +111,13 @@ export const ExpenseRow: React.FC<ExpenseRowProps> = ({
             style={{
               color: !involved
                 ? theme.colors.text.muted
-                : positive
-                  ? theme.colors.financialPositive
-                  : theme.colors.financialNegative,
+                : settled
+                  ? positive
+                    ? theme.colors.financialPositiveMuted
+                    : theme.colors.financialNegativeMuted
+                  : positive
+                    ? theme.colors.financialPositive
+                    : theme.colors.financialNegative,
             }}
           >
             {!involved
@@ -118,7 +127,28 @@ export const ExpenseRow: React.FC<ExpenseRowProps> = ({
                 : 'You Owe'}
           </Typography>
           {involved && (
-            <Amount value={net} currency={currency} variant='display' />
+            <Amount
+              value={net}
+              currency={currency}
+              variant='display'
+              type={
+                settled
+                  ? positive
+                    ? 'positiveMuted'
+                    : 'negativeMuted'
+                  : undefined
+              }
+            />
+          )}
+          {settled && involved && (
+            <Typography
+              variant='caption'
+              align='center'
+              numberOfLines={1}
+              style={{ color: theme.colors.text.muted, letterSpacing: 0.5 }}
+            >
+              Settled
+            </Typography>
           )}
         </Column>
       </View>

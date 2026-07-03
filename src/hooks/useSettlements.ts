@@ -17,6 +17,8 @@ export const useCreateSettlement = (groupId: string) => {
       settlementsApi.create(groupId, body),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: queryKeys.settlements.group(groupId) });
+      // Expenses carry the per-item "Settled" stamp set by a full settle-up.
+      qc.invalidateQueries({ queryKey: queryKeys.expenses.group(groupId) });
       qc.invalidateQueries({ queryKey: queryKeys.balances.group(groupId) });
       qc.invalidateQueries({ queryKey: queryKeys.balances.simplified(groupId) });
       qc.invalidateQueries({ queryKey: queryKeys.activity.group(groupId) });

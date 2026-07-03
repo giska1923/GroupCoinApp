@@ -93,6 +93,8 @@ export interface ExpenseDTO {
   groupId: string;
   expenseDate: string;
   splitType: 'EQUAL' | 'EXACT' | 'PERCENTAGE';
+  /** Set when the group fully settled up while this expense was open. */
+  settledAt: string | null;
   createdAt: string;
   updatedAt: string;
   paidByUser?: UserDTO;
