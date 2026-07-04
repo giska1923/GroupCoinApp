@@ -40,7 +40,7 @@ export default function GroupDetailScreen() {
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [settleUpOpen, setSettleUpOpen] = useState(false);
 
-  const currency = DEFAULT_CURRENCY;
+  const currency = group.data?.currency ?? DEFAULT_CURRENCY;
   const myMembership = members.data?.find(
     m => String(m.userId) === String(userId),
   );

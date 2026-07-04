@@ -32,13 +32,31 @@ export default function ExpensesScreen() {
           <Typography variant='subheading' color='secondary' align='center'>
             You are owed
           </Typography>
-          <Amount value={owedToYou} variant='display' type='positive' showSign={false} />
+          {owedToYou.map(entry => (
+            <Amount
+              key={entry.currency}
+              value={entry.amount}
+              currency={entry.currency}
+              variant='display'
+              type='positive'
+              showSign={false}
+            />
+          ))}
         </Card>
         <Card variant='default' padding='lg' style={{ flex: 1, alignItems: 'center' }}>
           <Typography variant='subheading' color='secondary' align='center'>
             You owe
           </Typography>
-          <Amount value={youOwe} variant='display' type='negative' showSign={false} />
+          {youOwe.map(entry => (
+            <Amount
+              key={entry.currency}
+              value={entry.amount}
+              currency={entry.currency}
+              variant='display'
+              type='negative'
+              showSign={false}
+            />
+          ))}
         </Card>
       </Row>
 

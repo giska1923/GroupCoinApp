@@ -20,6 +20,7 @@ export { ZERO };
 export const normalizeAmount = (value: string | number | undefined): string => {
   if (value === undefined || value === null) return ZERO;
   if (typeof value === 'string') return value;
+  if (typeof value !== 'number' || !Number.isFinite(value)) return ZERO;
   const negative = value < 0;
   const abs = Math.abs(value);
   const whole = Math.trunc(abs / 100);
@@ -27,9 +28,15 @@ export const normalizeAmount = (value: string | number | undefined): string => {
   return `${negative ? '-' : ''}${whole}.${frac}`;
 };
 
-/** Parse a decimal string into integer cents (bigint). */
-export const moneyToCents = (amount: string): bigint => {
-  const trimmed = amount.trim();
+/**
+ * Parse a decimal string into integer cents (bigint). Defensive against
+ * malformed input (non-strings, currency symbols, NaN) — anything that is
+ * not parseable counts as zero rather than throwing.
+ */
+export const moneyToCents = (amount: string | number | undefined | null): bigint => {
+  const normalized =
+    typeof amount === 'string' ? amount : normalizeAmount(amount ?? undefined);
+  const trimmed = normalized.trim();
   if (!trimmed || trimmed === '0' || trimmed === '0.0' || trimmed === '0.00') {
     return 0n;
   }
@@ -37,8 +44,12 @@ export const moneyToCents = (amount: string): bigint => {
   const negative = trimmed.startsWith('-');
   const abs = trimmed.replace(/^-/, '');
   const [wholePart = '0', fracPart = ''] = abs.split('.');
-  const whole = BigInt(wholePart.replace(/^0+(?=\d)/, '') || '0');
-  const frac = (fracPart + '00').slice(0, 2);
+  // Keep digits only so BigInt never throws on stray symbols.
+  const wholeDigits = wholePart.replace(/\D/g, '');
+  const fracDigits = fracPart.replace(/\D/g, '');
+  if (!wholeDigits && !fracDigits) return 0n;
+  const whole = BigInt(wholeDigits || '0');
+  const frac = (fracDigits + '00').slice(0, 2);
   const cents = whole * 100n + BigInt(frac);
   return negative ? -cents : cents;
 };

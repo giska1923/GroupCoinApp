@@ -30,7 +30,7 @@ export const ExpenseRow: React.FC<ExpenseRowProps> = ({
 }) => {
   const theme = useTheme();
   const userId = useAuthStore(s => s.user?.id);
-  const currency = currencyOverride ?? DEFAULT_CURRENCY;
+  const currency = currencyOverride ?? expense.currency ?? DEFAULT_CURRENCY;
   const detail = useExpense(expense.id);
 
   const splits = detail.data?.splits;

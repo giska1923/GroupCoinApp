@@ -25,7 +25,7 @@ interface AmountProps {
   type?: AmountType;
   showSign?: boolean;
   showCurrency?: boolean;
-  /** Soft outer glow on hero amounts (Net Flow). */
+  /** Soft outer glow (Net Flow hero and stacked multi-currency totals). */
   glow?: boolean;
   style?: ViewStyle;
 }
@@ -126,12 +126,12 @@ export const Amount: React.FC<AmountProps> = ({
   };
 
   const getGlowStyle = (): TextStyle => {
-    if (!glow || variant !== 'hero') return {};
+    if (!glow) return {};
     const color = getColor();
     return {
       textShadowColor: color,
       textShadowOffset: { width: 0, height: 0 },
-      textShadowRadius: 14,
+      textShadowRadius: variant === 'hero' ? 14 : 10,
     };
   };
 
@@ -160,7 +160,7 @@ export const Amount: React.FC<AmountProps> = ({
     <View
       style={[
         style,
-        variant === 'hero' && { overflow: 'visible' },
+        (variant === 'hero' || glow) && { overflow: 'visible' },
       ]}
     >
       <Typography

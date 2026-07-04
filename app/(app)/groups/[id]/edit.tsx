@@ -8,9 +8,11 @@ import { Typography, TextField, Button } from '../../../../src/components/ui';
 import { Spinner, ErrorState } from '../../../../src/components/feedback';
 import { MemberInviteSection } from '../../../../src/components/groups/MemberInviteSection';
 import { GroupImagePicker } from '../../../../src/components/groups/GroupImagePicker';
+import { CurrencyPicker } from '../../../../src/components/groups/CurrencyPicker';
 import {
   useGroup,
   useGroupMembers,
+  useGroupExpenses,
   useUpdateGroup,
   useInviteMember,
 } from '../../../../src/hooks';
@@ -24,11 +26,13 @@ export default function EditGroupScreen() {
 
   const group = useGroup(groupId);
   const members = useGroupMembers(groupId);
+  const expenses = useGroupExpenses(groupId);
   const updateGroup = useUpdateGroup(groupId);
   const inviteMember = useInviteMember(groupId);
 
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
+  const [currency, setCurrency] = useState(DEFAULT_CURRENCY);
   // Newly picked image as a base64 data URI; undefined = keep the current one.
   const [newImage, setNewImage] = useState<string>();
   const [pendingEmails, setPendingEmails] = useState<string[]>([]);
@@ -39,7 +43,11 @@ export default function EditGroupScreen() {
     if (!group.data) return;
     setName(group.data.name ?? '');
     setDescription(group.data.description ?? '');
+    setCurrency(group.data.currency ?? DEFAULT_CURRENCY);
   }, [group.data]);
+
+  // The backend locks the group currency once money has been recorded.
+  const currencyLocked = (expenses.data?.length ?? 0) > 0;
 
   const canSave =
     (name ?? '').trim().length > 0 &&
@@ -59,7 +67,7 @@ export default function EditGroupScreen() {
       await updateGroup.mutateAsync({
         name: (name ?? '').trim(),
         description: (description ?? '').trim() || undefined,
-        currency: DEFAULT_CURRENCY,
+        ...(currency !== group.data?.currency ? { currency } : {}),
         ...(newImage ? { imageUrl: newImage } : {}),
       });
 
@@ -138,6 +146,17 @@ export default function EditGroupScreen() {
           value={description}
           onChangeText={setDescription}
           multiline
+        />
+
+        <CurrencyPicker
+          value={currency}
+          onChange={setCurrency}
+          disabled={currencyLocked}
+          hint={
+            currencyLocked
+              ? 'The currency is locked because this group already has expenses.'
+              : 'All expenses in this group will use this currency.'
+          }
         />
 
         <MemberInviteSection

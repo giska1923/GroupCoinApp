@@ -7,6 +7,7 @@ import { Column } from '../../../src/components/layout/Row';
 import { Typography, TextField, Button } from '../../../src/components/ui';
 import { MemberInviteSection } from '../../../src/components/groups/MemberInviteSection';
 import { GroupImagePicker } from '../../../src/components/groups/GroupImagePicker';
+import { CurrencyPicker } from '../../../src/components/groups/CurrencyPicker';
 import { useCreateGroup } from '../../../src/hooks';
 import { ClientError } from '../../../src/api/errors';
 import { DEFAULT_CURRENCY } from '../../../src/config/currency';
@@ -15,6 +16,7 @@ export default function NewGroupScreen() {
   const theme = useTheme();
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
+  const [currency, setCurrency] = useState(DEFAULT_CURRENCY);
   // Optional image (base64 data URI); the backend assigns a default if omitted.
   const [image, setImage] = useState<string>();
   const [imageError, setImageError] = useState<string>();
@@ -35,7 +37,7 @@ export default function NewGroupScreen() {
       await createGroup.mutateAsync({
         name: name.trim(),
         description: description.trim() || undefined,
-        currency: DEFAULT_CURRENCY,
+        currency,
         imageUrl: image,
         inviteEmails: pendingEmails.length > 0 ? pendingEmails : undefined,
       });
@@ -99,6 +101,12 @@ export default function NewGroupScreen() {
           value={description}
           onChangeText={setDescription}
           multiline
+        />
+
+        <CurrencyPicker
+          value={currency}
+          onChange={setCurrency}
+          hint='All expenses in this group will use this currency.'
         />
 
         <MemberInviteSection

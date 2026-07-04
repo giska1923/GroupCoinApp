@@ -15,7 +15,11 @@ import { Header } from '../../../../src/components/layout/Header';
 import { Row, Column } from '../../../../src/components/layout/Row';
 import { Typography, Button, Chip } from '../../../../src/components/ui';
 import { Spinner } from '../../../../src/components/feedback';
-import { useGroupMembers, useCreateExpense } from '../../../../src/hooks';
+import {
+  useGroup,
+  useGroupMembers,
+  useCreateExpense,
+} from '../../../../src/hooks';
 import { useAuthStore } from '../../../../src/stores/auth.store';
 import { ClientError } from '../../../../src/api/errors';
 import { DEFAULT_CURRENCY } from '../../../../src/config/currency';
@@ -31,6 +35,7 @@ export default function AddExpenseScreen() {
   const groupId = String(id);
   const userId = useAuthStore(s => s.user?.id);
 
+  const group = useGroup(groupId);
   const members = useGroupMembers(groupId);
   const createExpense = useCreateExpense(groupId);
 
@@ -38,7 +43,8 @@ export default function AddExpenseScreen() {
   const [description, setDescription] = useState('');
   const [selected, setSelected] = useState<string[]>([]);
 
-  const currency = DEFAULT_CURRENCY;
+  // Expenses always use the group's currency.
+  const currency = group.data?.currency ?? DEFAULT_CURRENCY;
 
   // Default to splitting between everyone once members load.
   useEffect(() => {

@@ -12,7 +12,7 @@ import { Column } from '../layout/Row';
 import { Typography, Amount, Button } from '../ui';
 import { Spinner, ErrorState, EmptyState } from '../feedback';
 import { isZeroAmount } from '../../utils/money';
-import { DEFAULT_CURRENCY, isSupportedCurrency } from '../../config/currency';
+import { isSupportedCurrency } from '../../config/currency';
 
 interface SettleUpListProps {
   groupId: string;
@@ -147,7 +147,7 @@ export const SettleUpList: React.FC<SettleUpListProps> = ({ groupId }) => {
             </Typography>
             <Amount
               value={transfer.amount}
-              currency={DEFAULT_CURRENCY}
+              currency={transfer.currency}
               variant='default'
               showSign={false}
             />

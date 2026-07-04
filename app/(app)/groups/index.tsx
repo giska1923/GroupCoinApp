@@ -34,9 +34,13 @@ export default function GroupsScreen() {
   const invitations = useInvitations();
   const invitationCount = invitations.data?.length ?? 0;
 
-  const netFlowType = isPositiveAmount(netFlow)
+  // netFlow holds one entry per currency; a single entry gets the hero
+  // treatment, several entries render stacked so currencies are never summed.
+  // Fallback guards against an unexpectedly empty array (e.g. mid hot-reload).
+  const primaryNetFlow = netFlow[0] ?? { currency: 'USD', amount: '0.00' };
+  const netFlowType = isPositiveAmount(primaryNetFlow.amount)
     ? 'positive'
-    : isNegativeAmount(netFlow)
+    : isNegativeAmount(primaryNetFlow.amount)
       ? 'negative'
       : 'neutral';
 
@@ -78,14 +82,28 @@ export default function GroupsScreen() {
           </Typography>
           {isLoadingBalances ? (
             <Spinner size='small' />
-          ) : (
+          ) : netFlow.length === 1 ? (
             <Amount
-              value={netFlow}
+              value={primaryNetFlow.amount}
+              currency={primaryNetFlow.currency}
               variant='hero'
               type={netFlowType}
               showSign
-              glow={!isZeroAmount(netFlow)}
+              glow={!isZeroAmount(primaryNetFlow.amount)}
             />
+          ) : (
+            <View style={{ alignItems: 'center', gap: theme.spacing.xs }}>
+              {netFlow.map(entry => (
+                <Amount
+                  key={entry.currency}
+                  value={entry.amount}
+                  currency={entry.currency}
+                  variant='displayLg'
+                  showSign
+                  glow={!isZeroAmount(entry.amount)}
+                />
+              ))}
+            </View>
           )}
           {!isLoadingBalances && (
             <View
@@ -96,7 +114,15 @@ export default function GroupsScreen() {
                 width: '100%',
               }}
             >
-              <View style={{ flexDirection: 'row', alignItems: 'baseline', gap: 6 }}>
+              <View
+                style={{
+                  flexDirection: 'row',
+                  flexWrap: 'wrap',
+                  justifyContent: 'center',
+                  alignItems: 'baseline',
+                  gap: 6,
+                }}
+              >
                 <Typography
                   variant='body'
                   color='negativeMuted'
@@ -108,23 +134,39 @@ export default function GroupsScreen() {
                 >
                   You owe:
                 </Typography>
-                <Amount
-                  value={youOwe}
-                  variant='detail'
-                  type='negativeMuted'
-                  showSign={false}
-                />
+                {youOwe.map(entry => (
+                  <Amount
+                    key={entry.currency}
+                    value={entry.amount}
+                    currency={entry.currency}
+                    variant='detail'
+                    type='negativeMuted'
+                    showSign={false}
+                  />
+                ))}
               </View>
-              <View style={{ flexDirection: 'row', alignItems: 'baseline', gap: 6 }}>
+              <View
+                style={{
+                  flexDirection: 'row',
+                  flexWrap: 'wrap',
+                  justifyContent: 'center',
+                  alignItems: 'baseline',
+                  gap: 6,
+                }}
+              >
                 <Typography variant='subheading' color='positiveMuted' weight='medium'>
                   You are owed:
                 </Typography>
-                <Amount
-                  value={owedToYou}
-                  variant='detailLg'
-                  type='positiveMuted'
-                  showSign={false}
-                />
+                {owedToYou.map(entry => (
+                  <Amount
+                    key={entry.currency}
+                    value={entry.amount}
+                    currency={entry.currency}
+                    variant='detailLg'
+                    type='positiveMuted'
+                    showSign={false}
+                  />
+                ))}
               </View>
             </View>
           )}

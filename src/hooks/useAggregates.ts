@@ -12,10 +12,26 @@ export interface SplitContact {
   email: string;
   groupNames: string[];
 }
-import { addAmounts, isNegativeAmount, isPositiveAmount, myBalanceAmounts, negateAmount, ZERO } from '../utils/money';
-import { DEFAULT_CURRENCY } from '../config/currency';
+import { centsToMoney, moneyToCents, myBalanceAmounts, ZERO } from '../utils/money';
+import { DEFAULT_CURRENCY, resolveCurrency } from '../config/currency';
 
-/** Overall net balance across all groups for the signed-in user (per primary group currency). */
+export interface CurrencyAmount {
+  currency: string;
+  amount: string;
+}
+
+/** USD first, then alphabetical — keeps the primary currency on top. */
+const byCurrency = (a: CurrencyAmount, b: CurrencyAmount): number => {
+  if (a.currency === DEFAULT_CURRENCY) return -1;
+  if (b.currency === DEFAULT_CURRENCY) return 1;
+  return a.currency.localeCompare(b.currency);
+};
+
+/**
+ * Overall net balance across all groups for the signed-in user, aggregated
+ * per currency. Amounts in different currencies are never summed together
+ * (that would need FX conversion) — each currency gets its own entry.
+ */
 export const useOverview = () => {
   const groupsQuery = useGroups();
   const userId = useAuthStore(s => s.user?.id);
@@ -30,49 +46,56 @@ export const useOverview = () => {
     })),
   });
 
-  const balanceForGroup = (index: number): string => {
-    const group = groups[index];
-    if (!group) return ZERO;
-    const amounts = myBalanceAmounts(
-      balanceQueries[index]?.data ?? [],
-      userId,
-      DEFAULT_CURRENCY,
-    );
-    const primary =
-      amounts.find(a => a.currency === DEFAULT_CURRENCY) ?? amounts[0];
-    return primary?.amount ?? ZERO;
-  };
+  const { netFlow, owedToYou, youOwe } = useMemo(() => {
+    const net = new Map<string, bigint>();
+    const owed = new Map<string, bigint>();
+    const owing = new Map<string, bigint>();
 
-  const netFlow = useMemo(() => {
-    if (!userId) return ZERO;
-    return balanceQueries.reduce(
-      (sum, _q, index) => addAmounts(sum, balanceForGroup(index)),
-      ZERO,
-    );
-  }, [balanceQueries, groups, userId]);
+    if (userId) {
+      balanceQueries.forEach((query, index) => {
+        const group = groups[index];
+        if (!group) return;
+        const amounts = myBalanceAmounts(
+          query.data ?? [],
+          userId,
+          resolveCurrency(group.currency),
+        );
+        amounts.forEach(({ currency, amount }) => {
+          const cents = moneyToCents(amount);
+          if (cents === 0n) return;
+          net.set(currency, (net.get(currency) ?? 0n) + cents);
+          if (cents > 0n) {
+            owed.set(currency, (owed.get(currency) ?? 0n) + cents);
+          } else {
+            owing.set(currency, (owing.get(currency) ?? 0n) - cents);
+          }
+        });
+      });
+    }
 
-  const owedToYou = useMemo(() => {
-    if (!userId) return ZERO;
-    return balanceQueries.reduce((sum, _q, index) => {
-      const amount = balanceForGroup(index);
-      return isPositiveAmount(amount) ? addAmounts(sum, amount) : sum;
-    }, ZERO);
-  }, [balanceQueries, groups, userId]);
+    // Drop currencies that cancelled out to zero; fall back to a single USD
+    // zero entry so consumers always have something to render.
+    const toList = (map: Map<string, bigint>): CurrencyAmount[] => {
+      const entries = Array.from(map.entries())
+        .filter(([, cents]) => cents !== 0n)
+        .map(([currency, cents]) => ({ currency, amount: centsToMoney(cents) }))
+        .sort(byCurrency);
+      return entries.length > 0
+        ? entries
+        : [{ currency: DEFAULT_CURRENCY, amount: ZERO }];
+    };
 
-  const youOwe = useMemo(() => {
-    if (!userId) return ZERO;
-    return balanceQueries.reduce((sum, _q, index) => {
-      const amount = balanceForGroup(index);
-      return isNegativeAmount(amount) ? addAmounts(sum, negateAmount(amount)) : sum;
-    }, ZERO);
+    return {
+      netFlow: toList(net),
+      owedToYou: toList(owed),
+      youOwe: toList(owing),
+    };
   }, [balanceQueries, groups, userId]);
 
   return {
     groupsQuery,
     groups,
     netFlow,
-    /** @deprecated Use netFlow (decimal string). Kept for Amount backwards compat. */
-    netFlowCents: netFlow,
     owedToYou,
     youOwe,
     isLoadingBalances: balanceQueries.some(q => q.isLoading),
